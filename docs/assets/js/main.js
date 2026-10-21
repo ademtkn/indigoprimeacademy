@@ -16,7 +16,7 @@
     };
     burger.addEventListener('click', function () { setOpen(burger.getAttribute('aria-expanded') !== 'true'); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
-    window.addEventListener('resize', function () { if (window.innerWidth > 1240) setOpen(false); });
+    window.addEventListener('resize', function () { if (window.innerWidth > 1360) setOpen(false); });
   }
 
   // Staff filter

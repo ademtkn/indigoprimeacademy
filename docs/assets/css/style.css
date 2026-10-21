@@ -121,10 +121,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .burger[aria-expanded="true"] .i-close { display: block; }
 .ico { width: 22px; height: 22px; flex-shrink: 0; }
 
-@media (max-width: 1400px) {
+@media (max-width: 1760px) {
   .nav-list a { padding: .5rem .45rem; font-size: .86rem; }
 }
-@media (max-width: 1240px) {
+@media (max-width: 1360px) {
   .burger { display: grid; }
   .nav {
     position: fixed; inset: calc(var(--hdr-h) + env(safe-area-inset-top, 0px)) 0 0 0; z-index: 49;
@@ -860,4 +860,5 @@ h3 { font-family: var(--f-display); font-weight: 800; letter-spacing: -.005em; }
   .brand-text { display: none; }
 }
 /* mid-size desktops: drop the wordmark beside the logo so the full menu fits */
-@media (min-width: 1241px) and (max-width: 1480px) { .hdr .brand-text { display: none; } .nav { gap: .9rem; } }
+@media (min-width: 1361px) and (max-width: 1760px) { .hdr .brand-text { display: none; } .nav { gap: .9rem; } }
+.site-header .wrap { max-width: 1520px; }
