@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ademtkn.github.io/indigoprimeacademy/sitemap.xml

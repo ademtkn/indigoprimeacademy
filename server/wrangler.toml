@@ -1,0 +1,14 @@
+name = "indigo-prime-assistant"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Comma-separated list of sites allowed to call the assistant
+ALLOWED_ORIGINS = "https://ademtkn.github.io"
+
+# Serve the assistant on its own subdomain (the site itself is on GitHub Pages), then set
+# SITE.aiEndpoint in src/build.mjs to "https://api.<your-domain>":
+# routes = [{ pattern = "api.<your-domain>", custom_domain = true }]
+
+# Secret (never commit it):  npx wrangler secret put ANTHROPIC_API_KEY

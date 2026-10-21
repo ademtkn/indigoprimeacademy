@@ -1,0 +1,391 @@
+export default {
+  code: 'en', htmlLang: 'en', label: 'EN', langName: 'English',
+  ogLocale: 'en_US',
+
+  brand: { top: 'Indigo', name: 'Prime Academy', bottom: 'Grades 7–12', full: 'Indigo Prime Academy' },
+
+  nav: {
+    home: 'Home', about: 'About', academics: 'Programmes', method: 'Cambridge & Singapore', admissions: 'Admissions',
+    life: 'School Life', staff: 'Our Teachers', news: 'News & Events', contact: 'Contact',
+    apply: 'Apply', menu: 'Menu', close: 'Close', skip: 'Skip to content', lang: 'Language',
+  },
+
+  common: {
+    network: 'Indigo Academy',
+    address: 'Bishkek, Kyrgyzstan — see the location on 2GIS',
+    addressShort: 'Bishkek, Kyrgyzstan',
+    phones: 'Phones', hours: 'Office hours', hoursVal: 'Monday–Friday, 08:00–17:00',
+    follow: 'Follow us', quick: 'Explore', visitUs: 'Visit us',
+    apply: 'Apply for admission', visit: 'Book a visit', learnMore: 'Learn more',
+    openMap: 'Open in 2GIS', whatsapp: 'Write on WhatsApp', instagramDm: 'Message us on Instagram', call: 'Call us',
+    rights: 'All rights reserved.', partOf: 'A school of the Indigo Academy network',
+    copy: 'Copy', copied: 'Copied',
+  },
+
+  home: {
+    title: 'Indigo Prime Academy | Cambridge school for Grades 7–12 in Bishkek',
+    descr: 'Indigo Prime Academy is a co-educational school for Grades 7–12 in Bishkek, part of the Indigo Academy network. Cambridge curriculum, the Singapore method and three languages.',
+    hero: {
+      sub: 'International High School · Grades 7–12',
+      lead: 'A school for teenagers in Bishkek where the Cambridge curriculum and the Singapore method turn curiosity into deep understanding, confidence and a clear path to university.',
+      badges: ['Cambridge curriculum', 'Singapore method', 'Girls and boys together'],
+      cta1: 'Apply for admission', cta2: 'Book a visit',
+    },
+    welcome: {
+      eyebrow: 'Welcome',
+      title: 'The teenage years are where futures are built',
+      body: [
+        'Between Grade 7 and Grade 12 a child becomes a young adult. These six years decide how a person thinks, studies and works with others. At Indigo Prime Academy we make them count.',
+        'Our pupils follow the internationally recognised Cambridge pathway, learn mathematics and every other subject with the Singapore method, and grow in a friendly, respectful community of girls and boys.',
+      ],
+      sign: 'Director, Indigo Prime Academy',
+      link: 'Read the Director’s welcome',
+    },
+    pathway: {
+      eyebrow: 'The Cambridge pathway',
+      title: 'Six years, three clear stages',
+      body: 'Each stage has its own goals and ends with an internationally recognised Cambridge qualification.',
+    },
+    method: {
+      eyebrow: 'How we teach',
+      title: 'Two methods, one strong education',
+      body: 'Cambridge gives us what to learn and how to measure it. The Singapore method shapes how every lesson is taught.',
+      items: [
+        { icon: 'cambridge', t: 'Cambridge curriculum', d: 'An international programme used by schools in more than 160 countries, with clear standards for every subject and every year.',
+          list: ['Cambridge Lower Secondary, IGCSE and A Level', 'Qualifications recognised by universities worldwide', 'Learning in English'] },
+        { icon: 'pair', t: 'Singapore method', d: 'Active lessons where every pupil thinks, talks and solves problems, and mathematics moves from objects to pictures to symbols.',
+          list: ['Concrete → pictorial → abstract', 'Bar models and problem-solving strategies', 'Pair and team work in every lesson'] },
+      ],
+    },
+    stats: [
+      { n: '7–12', l: 'grades, from Lower Secondary to A Level' },
+      { n: '3', l: 'Cambridge stages with international exams' },
+      { n: 'CPA', l: 'the Singapore approach: concrete, pictorial, abstract' },
+      { n: '3', l: 'languages: English, Kyrgyz and Russian' },
+    ],
+    pillars: {
+      eyebrow: 'Why Indigo Prime',
+      title: 'What families value most',
+      items: [
+        { icon: 'globe', t: 'An international standard', d: 'Cambridge programmes and exams open the door to universities in Kyrgyzstan and abroad.' },
+        { icon: 'target', t: 'Real understanding', d: 'The Singapore method builds deep, lasting knowledge instead of memorised answers.' },
+        { icon: 'users', t: 'Girls and boys together', d: 'A mixed school that prepares teenagers for university and working life, built on mutual respect.' },
+        { icon: 'compass', t: 'Guidance for the future', d: 'Subject choice, career guidance and university advice from Grade 9 onwards.' },
+      ],
+    },
+    life: {
+      eyebrow: 'Beyond the classroom',
+      title: 'Afternoons full of challenge and fun',
+      body: 'After lessons, pupils code robots, run science projects, debate, play sport and prepare for olympiads. Every teenager finds a place to shine.',
+      chips: ['Robotics & coding', 'STEM projects', 'Debate & MUN', 'Olympiad groups', 'Sport', 'Art & design', 'Volunteering'],
+      cta: 'Explore school life',
+    },
+    visitBand: {
+      title: 'Come and see a lesson',
+      body: 'The best way to understand the Singapore method is to see it. Book a visit, sit in on a lesson and meet our teachers.',
+    },
+    social: {
+      title: 'Follow our school days',
+      body: 'Lessons, projects, competitions and celebrations. News, photos and admissions announcements appear first on our Instagram.',
+    },
+  },
+
+  about: {
+    title: 'About Us', descr: 'The story, mission and values of Indigo Prime Academy, a Cambridge school for Grades 7–12 in Bishkek.',
+    lead: 'Indigo Prime Academy is the international high school of the Indigo Academy network in Bishkek, for pupils in Grades 7–12.',
+    story: {
+      eyebrow: 'Our story', title: 'A school made for teenagers',
+      body: [
+        'Indigo Prime Academy was founded within Indigo Academy, a network of private schools in Bishkek known for strong results and caring teachers.',
+        'Families asked for a school that would take their children from the middle grades to university with an international programme, modern teaching and the values they hold dear. Indigo Prime is our answer: a school designed around the needs, interests and ambitions of teenagers.',
+        'We combine the Cambridge curriculum with the Singapore method, so that pupils not only know more but also understand more deeply, think independently and learn to work as a team.',
+      ],
+    },
+    mission: { t: 'Our mission', d: 'To educate curious, knowledgeable and responsible young people who are ready for the best universities and for life in a changing world.' },
+    vision: { t: 'Our vision', d: 'To be the leading international high school in Kyrgyzstan, where the world’s best methods meet our culture and values.' },
+    values: {
+      eyebrow: 'Our values', title: 'Five words we live by',
+      items: [
+        { t: 'Curiosity', d: 'asking why, and searching for answers ourselves.' },
+        { t: 'Excellence', d: 'high standards in every lesson and every task.' },
+        { t: 'Respect', d: 'for elders, for classmates and for every person.' },
+        { t: 'Responsibility', d: 'for our learning, our words and our community.' },
+        { t: 'Teamwork', d: 'succeeding together and helping others grow.' },
+      ],
+    },
+    director: {
+      eyebrow: 'Director’s welcome', title: 'Dear parents and pupils',
+      body: [
+        'Thank you for your interest in Indigo Prime Academy. Choosing a school for the teenage years is one of the most important decisions a family makes.',
+        'Our teachers know every pupil by name. They notice when a pupil is ready for a bigger challenge and when they need a little more support. We measure success not only in exam results but in the confidence with which our pupils speak, the questions they ask and the goals they dare to set.',
+        'I warmly invite you to visit us, to see a Singapore-method lesson and to talk with our team. Our doors are always open.',
+      ],
+      sign: 'Director, Indigo Prime Academy',
+    },
+    coed: {
+      eyebrow: 'Co-education', title: 'Girls and boys learning together',
+      body: 'Indigo Prime is a mixed school. Teenagers learn side by side, just as they will at university and at work, in an atmosphere of mutual respect and clear rules.',
+      items: [
+        { icon: 'pair', t: 'Real teamwork', d: 'Mixed teams bring different ideas to every project and discussion.' },
+        { icon: 'shield', t: 'Respect and clear rules', d: 'A clear code of conduct and attentive class teachers keep the school calm and safe.' },
+        { icon: 'mic', t: 'Confidence for everyone', d: 'Every pupil leads, presents and takes part, whatever the subject.' },
+        { icon: 'grad', t: 'Ready for university', d: 'Pupils leave school used to working with everyone, as they will in higher education.' },
+      ],
+    },
+    network: {
+      eyebrow: 'Our family', title: 'Part of Indigo Academy',
+      body: 'Indigo Prime Academy shares the experience, methods and teacher development programmes of the Indigo Academy network of schools in Bishkek.',
+      link: 'Visit indigo.edu.kg',
+    },
+  },
+
+  academics: {
+    title: 'Programmes', descr: 'The Cambridge pathway at Indigo Prime Academy: Lower Secondary, IGCSE and A Level for Grades 7–12.',
+    lead: 'From Grade 7 to Grade 12 our pupils follow the Cambridge pathway, step by step, towards internationally recognised qualifications and university.',
+    overview: {
+      eyebrow: 'Overview', title: 'The Cambridge pathway at Indigo Prime',
+      body: 'Three stages build on one another. Each stage has clear learning goals, regular assessment and a final Cambridge exam.',
+    },
+    stages: {
+      eyebrow: 'School stages', title: 'From Grade 7 to graduation',
+      items: [
+        { k: 'Cambridge Lower Secondary', g: 'Grades 7–8', age: '7–8', exam: 'Cambridge Checkpoint',
+          d: 'Strong foundations in English, mathematics and science, and the habits of independent study.',
+          long: 'Pupils strengthen the core subjects and learn how to study: planning, note-taking, research and presenting. The stage ends with Cambridge Checkpoint tests that show each pupil’s strengths.',
+          list: ['English, mathematics and science to Cambridge standards', 'Digital literacy and computing', 'Project and research weeks', 'Cambridge Checkpoint at the end of the stage'] },
+        { k: 'Cambridge IGCSE', g: 'Grades 9–10', age: '9–10', exam: 'IGCSE exams',
+          d: 'The world’s most popular international qualification for 14 to 16 year olds.',
+          long: 'Pupils choose their IGCSE subjects with the help of teachers and parents. Lessons focus on deep understanding, laboratory work, essay writing and exam skills.',
+          list: ['Core and elective IGCSE subjects', 'Laboratory and practical work', 'Career guidance and subject choice', 'International IGCSE examinations'] },
+        { k: 'Cambridge AS & A Level', g: 'Grades 11–12', age: '11–12', exam: 'AS & A Level exams',
+          d: 'Focused, university-level study in the subjects each pupil chooses.',
+          long: 'In the final two years pupils specialise in three or four subjects at AS and A Level. A Level results are accepted by universities around the world.',
+          list: ['Three to four specialist subjects', 'University counselling and applications', 'Preparation for IELTS / SAT and the ORT', 'Research projects and leadership'] },
+      ],
+    },
+    subjects: {
+      eyebrow: 'Subjects', title: 'What our pupils study',
+      body: 'The final list of IGCSE and A Level options is agreed each year. Please ask the admissions office for the current choices.',
+      groups: [
+        { t: 'Languages', icon: 'chat', items: ['English (Cambridge)', 'Kyrgyz language and literature', 'Russian language and literature'] },
+        { t: 'Mathematics & sciences', icon: 'flask', items: ['Mathematics (Singapore method)', 'Physics', 'Chemistry', 'Biology', 'Computer science'] },
+        { t: 'Humanities & social sciences', icon: 'book', items: ['History of Kyrgyzstan', 'World history', 'Geography', 'Business and economics'] },
+        { t: 'Arts & wellbeing', icon: 'palette', items: ['Art and design', 'Physical education', 'Global perspectives', 'Personal development'] },
+      ],
+    },
+    languages: {
+      eyebrow: 'Languages', title: 'English for study, three languages for life',
+      body: 'Cambridge subjects are taught in English, with extra English support for new pupils. Kyrgyz and Russian language and literature are studied every week, so our graduates feel at home in Kyrgyzstan and in the wider world.',
+    },
+    assessment: {
+      eyebrow: 'Progress', title: 'How we track progress',
+      items: [
+        { icon: 'doc', t: 'Regular assessment', d: 'Short checks in lessons and end-of-unit tests to Cambridge standards.' },
+        { icon: 'chat', t: 'Clear feedback', d: 'Pupils know what they do well and what to improve next.' },
+        { icon: 'users', t: 'Parent meetings', d: 'Reports and open conversations with families every term.' },
+        { icon: 'trophy', t: 'Room to excel', d: 'Olympiad groups and extra classes for pupils ready for more.' },
+      ],
+    },
+  },
+
+  method: {
+    title: 'Cambridge & Singapore', descr: 'How Indigo Prime Academy combines the Cambridge curriculum with the Singapore method of teaching.',
+    lead: 'Cambridge sets the international standard of what pupils learn. The Singapore method decides how they learn it: actively, together and with real understanding.',
+    cambridge: {
+      eyebrow: 'Cambridge curriculum', title: 'An international standard for every subject',
+      body: [
+        'Cambridge International Education is part of the University of Cambridge. Its programmes and exams are used by schools in more than 160 countries and accepted by universities around the world.',
+        'Every subject has a clear curriculum framework for each year. Teachers plan lessons against these goals, and pupils take externally marked exams at the end of Lower Secondary, IGCSE and A Level.',
+        'The programme values thinking skills as much as knowledge: analysing, explaining, experimenting and writing clearly.',
+      ],
+      learner: { t: 'The Cambridge learner is…', items: ['Confident in working with information and ideas', 'Responsible for themselves and others', 'Reflective, able to develop their ability to learn', 'Innovative and ready for new challenges', 'Engaged intellectually and socially'] },
+    },
+    singapore: {
+      eyebrow: 'Singapore method', title: 'Mathematics you can see and understand',
+      body: 'Singapore is among the world leaders in international studies of mathematics. Its method moves every new idea through three steps, so that pupils truly understand before they practise.',
+      cpa: [
+        { tag: 'Concrete', t: 'Hands on', d: 'Pupils first explore an idea with real objects: cubes, counters, measuring tools, paper models.' },
+        { tag: 'Pictorial', t: 'Draw it', d: 'Then they draw the problem. The famous bar model turns a word problem into a clear picture.' },
+        { tag: 'Abstract', t: 'Write it', d: 'Only then do they move to numbers and symbols, now with a solid understanding behind them.' },
+      ],
+    },
+    structures: {
+      eyebrow: 'In every lesson', title: 'Learning structures that involve every pupil',
+      body: 'Beyond mathematics, our teachers use Singapore collaborative learning structures in all subjects. Nobody sits quietly at the back: everyone thinks, speaks and helps.',
+      items: [
+        { icon: 'pair', t: 'Pair work', d: 'Pupils explain ideas to a partner, check each other and take turns answering.' },
+        { icon: 'users', t: 'Teams of four', d: 'Small mixed teams solve problems together, each pupil with a clear role.' },
+        { icon: 'clock', t: 'Thinking time', d: 'A pause before answering so that every pupil, not only the fastest, has time to think.' },
+        { icon: 'spark', t: 'Every voice counts', d: 'Structured turn-taking means every pupil takes part, every lesson.' },
+      ],
+    },
+    together: {
+      eyebrow: 'Together', title: 'What a lesson looks like',
+      items: [
+        { t: 'A real question', d: 'The lesson begins with a problem or question linked to life.' },
+        { t: 'Explore', d: 'Pupils try ideas with objects, drawings or experiments.' },
+        { t: 'Discuss', d: 'Pairs and teams compare methods and explain their thinking.' },
+        { t: 'Practise', d: 'Focused practice, from simple to challenging tasks.' },
+        { t: 'Reflect', d: 'Pupils check what they have learned and what comes next.' },
+      ],
+    },
+  },
+
+  admissions: {
+    title: 'Admissions', descr: 'How to apply to Indigo Prime Academy for Grades 7–12: steps, documents and frequently asked questions.',
+    lead: 'We are glad that you are considering Indigo Prime Academy. Our admissions team will guide you through every step.',
+    steps: {
+      eyebrow: 'Step by step', title: 'How to join us',
+      items: [
+        { t: 'Get in touch', d: 'Message us to ask about places in your child’s grade.' },
+        { t: 'Visit the school', d: 'Tour the building, see a lesson and meet the admissions team.' },
+        { t: 'Entrance assessment', d: 'A short assessment in English and mathematics, and a friendly interview.' },
+        { t: 'Submit documents', d: 'Bring the documents from the list below to the school office.' },
+        { t: 'Welcome to Indigo Prime', d: 'Sign the agreement, receive the uniform and timetable, and get ready for the first day.' },
+      ],
+    },
+    docs: {
+      eyebrow: 'Documents', title: 'What to prepare',
+      items: [
+        'Copy of the birth certificate or passport',
+        'Copies of both parents’ passports',
+        'Medical record (form 026/u) and vaccination card',
+        'Personal file and report card from the previous school',
+        '3×4 cm photographs, 4 pieces',
+        'Application form completed at the school office',
+      ],
+      note: 'The final list may change. Please confirm it with the school office before your visit.',
+    },
+    fees: {
+      title: 'Tuition fees', body: 'Tuition is set for each academic year. Please contact the admissions office for current fees, discounts and payment options.',
+    },
+    faq: {
+      eyebrow: 'Questions', title: 'Frequently asked questions',
+      items: [
+        { q: 'Which grades do you accept?', a: 'Indigo Prime Academy teaches Grades 7 to 12. Pupils usually join in Grade 7, but transfers to other grades are possible when places are available.' },
+        { q: 'Is there an entrance test?', a: 'Yes. Pupils complete a short assessment in English and mathematics and have a friendly interview, so that we can plan the right support.' },
+        { q: 'My child’s English is not strong yet. Can they still apply?', a: 'Yes. We look at each pupil’s potential. New pupils can receive extra English support to help them follow Cambridge lessons.' },
+        { q: 'Is the school for girls and boys?', a: 'Yes, Indigo Prime Academy is a co-educational school. Girls and boys learn together.' },
+        { q: 'What is the Singapore method?', a: 'It is a way of teaching where new ideas move from objects to pictures to symbols, and where pupils work actively in pairs and teams in every lesson.' },
+        { q: 'Can we visit before applying?', a: 'Yes, and we recommend it. Message us to agree a convenient day and time to visit and see a lesson.' },
+      ],
+    },
+  },
+
+  life: {
+    title: 'School Life', descr: 'Clubs, traditions, the school day and pupil care at Indigo Prime Academy.',
+    lead: 'School is more than lessons. It is friendship, projects, competitions and the feeling of belonging to a team.',
+    day: {
+      eyebrow: 'A typical day', title: 'A day at Indigo Prime',
+      items: [
+        { time: '08:00', t: 'Morning welcome', d: 'Pupils arrive and meet their class teacher.' },
+        { time: '08:30', t: 'Lessons begin', d: 'Core Cambridge subjects while minds are fresh.' },
+        { time: '12:30', t: 'Lunch and break', d: 'Time to eat together, rest and talk with friends.' },
+        { time: '13:30', t: 'Afternoon lessons', d: 'Sciences, languages and electives.' },
+        { time: '15:30', t: 'Clubs and study', d: 'Clubs, sport, olympiad groups and supervised study.' },
+      ],
+      note: 'Times are indicative and may differ by grade.',
+    },
+    clubs: {
+      eyebrow: 'Clubs', title: 'Find what you love',
+      items: [
+        { icon: 'code', t: 'Robotics & coding' }, { icon: 'lab', t: 'Science lab club' },
+        { icon: 'mic', t: 'Debate & Model UN' }, { icon: 'trophy', t: 'Olympiad preparation' },
+        { icon: 'run', t: 'Football & basketball' }, { icon: 'palette', t: 'Art & design' },
+        { icon: 'book', t: 'English reading club' }, { icon: 'heart', t: 'Volunteering' },
+      ],
+    },
+    traditions: {
+      eyebrow: 'Traditions', title: 'Moments we celebrate together',
+      items: [
+        { t: 'Knowledge Day', d: 'The first bell of the school year on 1 September.' },
+        { t: 'Teachers’ Day', d: 'Concerts and gratitude for our teachers.' },
+        { t: 'Science & project fair', d: 'Pupils present their research and STEM projects to families.' },
+        { t: 'New Year concert', d: 'Performances, decorations and family guests.' },
+        { t: 'Nooruz', d: 'Sumolok, national costumes and spring celebrations on 21 March.' },
+        { t: 'Graduation', d: 'Farewell to our Grade 12 graduates at the end of the year.' },
+      ],
+    },
+    care: {
+      eyebrow: 'Wellbeing', title: 'Care for every pupil',
+      items: [
+        { icon: 'heart', t: 'Class teacher', d: 'A trusted adult who follows each pupil’s progress and wellbeing.' },
+        { icon: 'chat', t: 'School psychologist', d: 'Support with emotions, friendships and exam stress.' },
+        { icon: 'compass', t: 'Career counselling', d: 'Help with subject choice, careers and university applications.' },
+        { icon: 'users', t: 'Partnership with parents', d: 'Regular meetings and open communication with families.' },
+      ],
+    },
+  },
+
+  staff: {
+    title: 'Our Teachers', descr: 'Meet the leadership, teachers and support team of Indigo Prime Academy.',
+    lead: 'Our teachers are the heart of the school: experienced professionals trained in the Cambridge programme and the Singapore method.',
+    filterAll: 'All',
+    depts: { lead: 'Leadership', stem: 'Mathematics & sciences', lang: 'Languages', hum: 'Humanities & arts', support: 'Support team' },
+    namePh: 'Full name',
+    roles: {
+      director: 'Director', deputyAcademic: 'Deputy Director, Academic Affairs', cambridgeCoord: 'Cambridge Programme Coordinator', pastoral: 'Deputy Director, Pupil Care',
+      math1: 'Mathematics', math2: 'Mathematics', physics: 'Physics', chemistry: 'Chemistry', biology: 'Biology', cs: 'Computer science & robotics',
+      english1: 'English', english2: 'English', kyrgyz: 'Kyrgyz language & literature', russian: 'Russian language & literature',
+      history: 'History & global perspectives', geography: 'Geography', business: 'Business & economics', art: 'Art & design', pe: 'Physical education',
+      counsellor: 'University & career counsellor', psychologist: 'School psychologist', admissions: 'Admissions officer',
+    },
+    join: { title: 'Join our team', body: 'We are always glad to meet talented teachers who share our values. Send us your CV.' },
+  },
+
+  news: {
+    title: 'News & Events', descr: 'School news, events and the yearly calendar of Indigo Prime Academy.',
+    lead: 'The latest news, photos and announcements appear first on our Instagram. Here is the calendar of our main school-year events.',
+    channels: {
+      eyebrow: 'Stay connected', title: 'Follow our news',
+      ig: 'Photos and stories from lessons, projects, competitions and admissions announcements.',
+      net: 'News from the whole Indigo Academy family of schools.',
+      open: 'Open',
+    },
+    calendar: {
+      eyebrow: 'School year', title: 'Calendar of key dates',
+      items: [
+        { m: 'Sep', d: '1', t: 'Knowledge Day', s: 'First bell and the start of the school year' },
+        { m: 'Oct', d: '', t: 'Teachers’ Day', s: 'Celebration for our teachers' },
+        { m: 'Dec', d: '', t: 'New Year concert', s: 'Performances for families' },
+        { m: 'Mar', d: '21', t: 'Nooruz', s: 'Spring festival and national traditions' },
+        { m: 'Apr', d: '', t: 'Cambridge Checkpoint', s: 'Lower Secondary tests (Grade 8)' },
+        { m: 'May', d: '', t: 'Cambridge exams', s: 'IGCSE, AS and A Level exam session' },
+        { m: 'Jun', d: '', t: 'Graduation', s: 'Farewell ceremony for Grade 12' },
+      ],
+      note: 'Exact dates are announced on our Instagram page.',
+    },
+  },
+
+  contact: {
+    title: 'Contact', descr: 'How to reach Indigo Prime Academy in Bishkek.',
+    lead: 'We will be happy to answer your questions and to welcome you at the school.',
+    form: {
+      title: 'Send us a message',
+      body: 'Fill in the form and send it to us on WhatsApp. We will reply as soon as possible.',
+      bodyDm: 'Fill in the form and press the button: your message is copied and Instagram Direct opens. Paste it there and send.',
+      name: 'Parent’s name', phone: 'Phone number', grade: 'Grade of interest', msg: 'Your message',
+      gradePh: 'Select a grade', send: 'Send on WhatsApp', sendDm: 'Copy and open Instagram',
+      copied: 'Your message has been copied. Paste it into the Instagram chat.',
+      intro: 'Hello! I would like to know more about Indigo Prime Academy.',
+    },
+    mapTitle: 'How to find us', mapBody: 'Open the map for a route by car, bus or on foot.',
+  },
+
+  ai: {
+    open: 'School assistant', title: 'Indigo Prime Assistant', status: 'Answers questions about the school only',
+    hello: 'Hello! I am the assistant of Indigo Prime Academy. Ask me about admissions, the Cambridge programme, the Singapore method, clubs or how to reach us.',
+    placeholder: 'Type your question…', send: 'Send', close: 'Close', thinking: 'Preparing an answer…',
+    suggestions: ['How do I apply?', 'What is the Singapore method?', 'Which Cambridge exams do you offer?', 'Where is the school?'],
+    noAnswer: 'Sorry, the website has no information on this. Please write to us on Instagram: @indigoprimeacademy.',
+    offTopic: 'I can only answer questions about the school.',
+    source: 'Read more', error: 'I cannot answer right now. Please try again shortly or write to us on Instagram: @indigoprimeacademy.',
+    disclaimer: 'Answers are based on the information on this website. Please confirm important details with the school.',
+  },
+
+  root: {
+    pick: 'Choose your language', welcome: 'Welcome to Indigo Prime Academy!',
+    sub: 'Cambridge curriculum and the Singapore method, Grades 7–12.', cont: 'Continue in English',
+    tag: 'International High School · Bishkek',
+  },
+};
