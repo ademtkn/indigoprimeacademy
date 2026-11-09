@@ -21,7 +21,7 @@
     },
     {
       "key": "method",
-      "show": true
+      "show": false
     },
     {
       "key": "admissions",
