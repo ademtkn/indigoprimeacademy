@@ -6,6 +6,9 @@ için 3 dilli (İngilizce, Kırgızca, Rusça) statik site. Asylkech Girls' Scho
 ## Yönetim paneli (admin)
 Adres: **https://ademtkn.github.io/indigoprimeacademy/admin/**
 
+Panelin kendi dili İngilizce, Kırgızca, Rusça veya Türkçe seçilebilir (giriş ekranında ve sol menünün altında EN / KG / RU / TR;
+arayüz metinleri `admin/i18n.js` dosyasında).
+
 Panelden kod bilmeden şunlar değiştirilebilir, her metin üç dilde (EN / KG / RU) yan yana:
 - **Sayfa metinleri:** tüm sayfalardaki başlıklar, yazılar, SSS, kulüpler, takvim… Listelere öğe eklenip silinebilir, sırası değiştirilebilir.
 - **Menü:** sayfaların sırası, menüdeki adı, menüde gösterilip gizlenmesi.

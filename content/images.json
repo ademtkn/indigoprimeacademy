@@ -1,14 +1,110 @@
 [
-  { "file": "photos/home-welcome.jpg", "label": "Ana sayfa — karşılama (dikey)" },
-  { "file": "photos/life-1.jpg", "label": "Okul hayatı kolajı 1 (büyük, dikey)" },
-  { "file": "photos/life-2.jpg", "label": "Okul hayatı kolajı 2" },
-  { "file": "photos/life-3.jpg", "label": "Okul hayatı kolajı 3" },
-  { "file": "photos/about-story.jpg", "label": "Hakkımızda — hikayemiz (dikey)" },
-  { "file": "photos/director.jpg", "label": "Hakkımızda — müdür (dikey)" },
-  { "file": "photos/stage-1.jpg", "label": "Programlar — Lower Secondary (7–8)" },
-  { "file": "photos/stage-2.jpg", "label": "Programlar — IGCSE (9–10)" },
-  { "file": "photos/stage-3.jpg", "label": "Programlar — A Level (11–12)" },
-  { "file": "photos/languages.jpg", "label": "Programlar — diller (dikey)" },
-  { "file": "photos/news-instagram.jpg", "label": "Haberler — Instagram kartı" },
-  { "file": "photos/news-network.jpg", "label": "Haberler — Indigo Academy kartı" }
+  {
+    "file": "photos/home-welcome.jpg",
+    "label": {
+      "en": "Home — welcome (portrait)",
+      "ky": "Башкы бет — кош келиңиз (тик)",
+      "ru": "Главная — приветствие (вертикальное)",
+      "tr": "Ana sayfa — karşılama (dikey)"
+    }
+  },
+  {
+    "file": "photos/life-1.jpg",
+    "label": {
+      "en": "School life collage 1 (large, portrait)",
+      "ky": "Мектеп турмушу коллажы 1 (чоң, тик)",
+      "ru": "Коллаж «Школьная жизнь» 1 (крупное, вертикальное)",
+      "tr": "Okul hayatı kolajı 1 (büyük, dikey)"
+    }
+  },
+  {
+    "file": "photos/life-2.jpg",
+    "label": {
+      "en": "School life collage 2",
+      "ky": "Мектеп турмушу коллажы 2",
+      "ru": "Коллаж «Школьная жизнь» 2",
+      "tr": "Okul hayatı kolajı 2"
+    }
+  },
+  {
+    "file": "photos/life-3.jpg",
+    "label": {
+      "en": "School life collage 3",
+      "ky": "Мектеп турмушу коллажы 3",
+      "ru": "Коллаж «Школьная жизнь» 3",
+      "tr": "Okul hayatı kolajı 3"
+    }
+  },
+  {
+    "file": "photos/about-story.jpg",
+    "label": {
+      "en": "About — our story (portrait)",
+      "ky": "Мектеп жөнүндө — биздин тарых (тик)",
+      "ru": "О школе — наша история (вертикальное)",
+      "tr": "Hakkımızda — hikayemiz (dikey)"
+    }
+  },
+  {
+    "file": "photos/director.jpg",
+    "label": {
+      "en": "About — director (portrait)",
+      "ky": "Мектеп жөнүндө — директор (тик)",
+      "ru": "О школе — директор (вертикальное)",
+      "tr": "Hakkımızda — müdür (dikey)"
+    }
+  },
+  {
+    "file": "photos/stage-1.jpg",
+    "label": {
+      "en": "Programmes — Lower Secondary (7–8)",
+      "ky": "Программалар — Lower Secondary (7–8)",
+      "ru": "Программы — Lower Secondary (7–8)",
+      "tr": "Programlar — Lower Secondary (7–8)"
+    }
+  },
+  {
+    "file": "photos/stage-2.jpg",
+    "label": {
+      "en": "Programmes — IGCSE (9–10)",
+      "ky": "Программалар — IGCSE (9–10)",
+      "ru": "Программы — IGCSE (9–10)",
+      "tr": "Programlar — IGCSE (9–10)"
+    }
+  },
+  {
+    "file": "photos/stage-3.jpg",
+    "label": {
+      "en": "Programmes — A Level (11–12)",
+      "ky": "Программалар — A Level (11–12)",
+      "ru": "Программы — A Level (11–12)",
+      "tr": "Programlar — A Level (11–12)"
+    }
+  },
+  {
+    "file": "photos/languages.jpg",
+    "label": {
+      "en": "Programmes — languages (portrait)",
+      "ky": "Программалар — тилдер (тик)",
+      "ru": "Программы — языки (вертикальное)",
+      "tr": "Programlar — diller (dikey)"
+    }
+  },
+  {
+    "file": "photos/news-instagram.jpg",
+    "label": {
+      "en": "News — Instagram card",
+      "ky": "Жаңылыктар — Instagram карточкасы",
+      "ru": "Новости — карточка Instagram",
+      "tr": "Haberler — Instagram kartı"
+    }
+  },
+  {
+    "file": "photos/news-network.jpg",
+    "label": {
+      "en": "News — Indigo Academy card",
+      "ky": "Жаңылыктар — Indigo Academy карточкасы",
+      "ru": "Новости — карточка Indigo Academy",
+      "tr": "Haberler — Indigo Academy kartı"
+    }
+  }
 ]

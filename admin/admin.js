@@ -1,7 +1,8 @@
 // Indigo Prime Academy — admin panel.
 // Reads content/*.json from the GitHub repository, lets editors change texts (in three languages),
 // the menu, staff, news, extra pages and pictures, and saves everything as one commit.
-// The "Build and publish site" GitHub Action then rebuilds the site and publishes it.
+// The site (docs/) is regenerated in the browser and committed together with the content.
+// Interface texts are in i18n.js (English, Kyrgyz, Russian, Turkish).
 (function () {
   'use strict';
   var REPO = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.repo) || 'ademtkn/indigoprimeacademy';
@@ -12,32 +13,23 @@
   var TOKEN_KEY = 'ipa-admin-token';
   var ICONS = 'book globe heart shield spark palette music flask code trophy run chat sun calendar phone pin clock users doc star leaf needle mic cambridge bars cubes target compass grad pair lab map'.split(' ');
   var HIDDEN = { code: 1, htmlLang: 1, label: 1, langName: 1, ogLocale: 1 };
-  var BUILTIN = { about: 'Hakkımızda', academics: 'Programlar', method: 'Cambridge & Singapur', admissions: 'Kabul', life: 'Okul hayatı', staff: 'Öğretmenler', news: 'Haberler', contact: 'İletişim' };
-  var TEXT_PAGES = [
-    ['home', 'Ana sayfa'], ['about', 'Hakkımızda'], ['academics', 'Programlar'], ['method', 'Cambridge & Singapur'],
-    ['admissions', 'Kabul'], ['life', 'Okul hayatı'], ['staff', 'Öğretmenler sayfası'], ['news', 'Haberler sayfası'],
-    ['contact', 'İletişim'], ['common', 'Ortak metinler'], ['nav', 'Menü ve düğmeler'], ['brand', 'Marka'],
-    ['ai', 'Asistan'], ['root', 'Dil seçim sayfası'],
-  ];
-  var LABELS = {
-    title: 'Başlık', descr: 'Google açıklaması', lead: 'Giriş metni', eyebrow: 'Küçük üst başlık', body: 'Metin', items: 'Öğeler',
-    t: 'Başlık', d: 'Açıklama / gün', q: 'Soru', a: 'Cevap', k: 'Ad', g: 'Sınıflar', list: 'Madde listesi', sign: 'İmza',
-    link: 'Bağlantı metni', cta: 'Düğme metni', cta1: '1. düğme', cta2: '2. düğme', chips: 'Etiketler', icon: 'Simge',
-    hero: 'Üst bölüm', welcome: 'Karşılama', pillars: 'Neden biz kartları', stats: 'Rakamlar', n: 'Sayı', l: 'Açıklama',
-    life: 'Okul hayatı bölümü', visitBand: 'Ziyaret bandı (mor şerit)', social: 'Instagram bölümü', badges: 'Rozetler', sub: 'Alt başlık',
-    pathway: 'Cambridge yolu', method: 'İki yöntem', story: 'Hikayemiz', mission: 'Misyon', vision: 'Vizyon', values: 'Değerler',
-    director: 'Müdürün mesajı', coed: 'Karma eğitim', network: 'Indigo Academy ağı', overview: 'Genel bakış', stages: 'Kademeler',
-    subjects: 'Dersler', groups: 'Ders grupları', languages: 'Diller', assessment: 'Değerlendirme', exam: 'Sınav', age: 'Büyük numara',
-    long: 'Uzun açıklama', cambridge: 'Cambridge', learner: 'Cambridge öğrencisi', singapore: 'Singapur metodu',
-    cpa: 'Somut → resimli → soyut', tag: 'Etiket', structures: 'Öğrenme yapıları', together: 'Ders akışı', steps: 'Adımlar',
-    docs: 'Belgeler', note: 'Not', fees: 'Ücretler', faq: 'Sık sorulan sorular', day: 'Günlük program', time: 'Saat',
-    clubs: 'Kulüpler', traditions: 'Gelenekler', care: 'Öğrenci bakımı', depts: 'Bölüm adları', filterAll: '"Tümü" düğmesi',
-    namePh: 'İsim girilmemişse görünen yazı', join: 'Ekibimize katılın', channels: 'Kanallar', calendar: 'Takvim', m: 'Ay',
-    s: 'Açıklama', form: 'İletişim formu', mapTitle: 'Harita başlığı', mapBody: 'Harita metni', roles: 'Görevler',
-    suggestions: 'Önerilen sorular', address: 'Adres (uzun)', addressShort: 'Adres (kısa)', hoursVal: 'Çalışma saatleri',
-    top: 'Üst satır', name: 'Ad', bottom: 'Alt satır', full: 'Tam ad', apply: 'Başvuru düğmesi', welcomeLine: 'Karşılama',
-    pick: '"Dil seçin" yazısı', cont: 'Devam düğmesi',
-  };
+  var I18N = window.ADMIN_I18N, UI_KEY = 'ipa-admin-lang';
+  // Panel language: the editor's last choice, else the browser language, else Russian
+  var UI = (function () {
+    var saved; try { saved = localStorage.getItem(UI_KEY); } catch (x) {}
+    if (saved && I18N[saved]) return saved;
+    var nav = (navigator.languages || [navigator.language || '']).map(function (l) { return String(l).slice(0, 2).toLowerCase(); });
+    for (var i = 0; i < nav.length; i++) if (I18N[nav[i]]) return nav[i];
+    return 'ru';
+  })();
+  function T(k) {
+    var v = I18N[UI][k] != null ? I18N[UI][k] : I18N.en[k];
+    for (var i = 1; i < arguments.length; i++) v = v.replace('{' + (i - 1) + '}', arguments[i]);
+    return v;
+  }
+  var BUILTIN = I18N.en.builtin; // keys of the built-in pages
+  var builtinName = function (k) { return (I18N[UI].builtin || I18N.en.builtin)[k]; };
+  var TEXT_PAGES = Object.keys(I18N.en.pagesTabs);
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 
   var S = { token: '', head: '', files: {}, existing: {}, built: {}, uploads: {}, view: 'home', textPage: 'home', publishing: null };
@@ -86,7 +78,7 @@
       }));
     }).then(function (list) {
       list.forEach(function (x) {
-        if (x[1] == null) throw new Error(path(x[0]) + ' bulunamadı');
+        if (x[1] == null) throw new Error(T('notFound', path(x[0])));
         var data = JSON.parse(x[1]);
         // Compare against our own formatting so an untouched file never counts as changed
         S.files[x[0]] = { text: json(data), data: data };
@@ -103,12 +95,12 @@
 
   function save() {
     var d = dirty(); if (!d.files.length && !d.uploads.length) return;
-    var btn = $('save'); btn.disabled = true; btn.textContent = 'Kaydediliyor…';
+    var btn = $('save'); btn.disabled = true; btn.textContent = T('saving');
     var base, built, entries = [];
     d.files.forEach(function (f) { entries.push({ path: path(f), mode: '100644', type: 'blob', content: json(S.files[f].data) }); });
     gh('GET', '/git/ref/heads/' + BRANCH).then(function (ref) {
       base = ref.object.sha;
-      if (base !== S.head && !confirm('Site siz bu sayfayı açtıktan sonra başka bir yerden değiştirilmiş. Kaydederseniz aynı bölümlerdeki o değişikliklerin üzerine yazılabilir. Devam edilsin mi?')) throw new Error('İptal edildi');
+      if (base !== S.head && !confirm(T('conflict'))) throw new Error('cancelled');
       // Upload pictures as blobs first (into assets/ and the published copy in docs/assets/)
       return Promise.all(d.uploads.map(function (p) {
         var u = S.uploads[p];
@@ -119,7 +111,7 @@
       }));
     }).then(rebuild).then(function (pages) { built = pages; entries = entries.concat(pages.entries); return gh('GET', '/git/commits/' + base); })
       .then(function (c) { return gh('POST', '/git/trees', { base_tree: c.tree.sha, tree: entries }); })
-      .then(function (t) { return gh('POST', '/git/commits', { message: 'Yönetim panelinden güncelleme: ' + summary(d), tree: t.sha, parents: [base] }); })
+      .then(function (t) { return gh('POST', '/git/commits', { message: 'Admin panel update: ' + summary(d, 'en'), tree: t.sha, parents: [base] }); })
       .then(function (c) { return gh('PATCH', '/git/refs/heads/' + BRANCH, { sha: c.sha }).then(function () { return c.sha; }); })
       .then(function (sha) {
         S.head = sha;
@@ -127,14 +119,14 @@
         d.uploads.forEach(function (p) { if (S.uploads[p] === null) delete S.existing[p]; else S.existing[p] = true; });
         Object.keys(built.shas).forEach(function (p) { if (built.shas[p]) S.built[p] = built.shas[p]; else delete S.built[p]; });
         S.uploads = {};
-        toast('Kaydedildi. Site 1–2 dakika içinde güncellenecek.');
+        toast(T('saved'));
         watchPublish(sha);
         render();
       })
       .catch(function (e) {
-        if (e.message !== 'İptal edildi') alert('Kaydedilemedi: ' + explain(e));
+        if (e.message !== 'cancelled') alert(T('saveFailed', explain(e)));
       })
-      .then(function () { btn.textContent = 'Kaydet ve yayınla'; updateBar(); });
+      .then(function () { btn.textContent = T('save'); updateBar(); });
   }
   // ---------- rebuilding the published site (docs/) in the browser ----------
   // GitHub Pages serves main /docs, so every save also commits the regenerated pages.
@@ -167,17 +159,19 @@
     });
   }
 
-  function summary(d) {
-    var names = { site: 'ayarlar/menü', en: 'metinler', ky: 'metinler', ru: 'metinler', staff: 'öğretmenler', news: 'haberler', pages: 'sayfalar', images: 'resim listesi' };
+  function summary(d, lang) {
+    var ui = UI; if (lang) UI = lang;
+    var key = { site: 'sum.site', en: 'sum.texts', ky: 'sum.texts', ru: 'sum.texts', staff: 'sum.staff', news: 'sum.news', pages: 'sum.pages', images: 'sum.images' };
     var out = [];
-    d.files.forEach(function (f) { if (out.indexOf(names[f]) < 0) out.push(names[f]); });
-    if (d.uploads.length) out.push(d.uploads.length + ' resim');
+    d.files.forEach(function (f) { var n = T(key[f]); if (out.indexOf(n) < 0) out.push(n); });
+    if (d.uploads.length) out.push(T('sum.pics', d.uploads.length));
+    UI = ui;
     return out.join(', ');
   }
   function explain(e) {
-    if (e.status === 401) return 'Erişim anahtarı geçersiz ya da süresi dolmuş.';
-    if (e.status === 403 || e.status === 404) return 'Anahtarın bu depoya yazma izni yok (Contents: Read and write gerekli).';
-    if (e.status === 409 || e.status === 422) return 'Depo aynı anda değişti. Sayfayı yenileyip tekrar deneyin. (' + e.message + ')';
+    if (e.status === 401) return T('err401');
+    if (e.status === 403 || e.status === 404) return T('err403');
+    if (e.status === 409 || e.status === 422) return T('err409', e.message);
     return e.message;
   }
 
@@ -204,15 +198,15 @@
   function updateBar() {
     var d = dirty(), n = d.files.length + d.uploads.length;
     $('save').disabled = !n; $('discard').disabled = !n;
-    var msg = n ? '<strong>Kaydedilmemiş değişiklik var</strong> (' + esc(summary(d)) + ')' : 'Tüm değişiklikler kaydedildi.';
+    var msg = n ? '<strong>' + esc(T('unsaved')) + '</strong> (' + esc(summary(d)) + ')' : esc(T('allSaved'));
     var p = S.publishing;
     if (p && !n) {
       msg = {
-        wait: '<span class="warn">Yayın sırası bekleniyor…</span>',
-        run: '<span class="warn">Site yeniden oluşturuluyor…</span> (yaklaşık 1 dakika)',
-        done: '<span class="ok">✓ Yayınlandı.</span> Değişiklikleri görmek için siteyi yenileyin (gerekirse 1 dakika bekleyin).',
-        fail: '<span class="err">Yayınlama başarısız oldu.</span> <a href="' + esc(p.url) + '" target="_blank" rel="noopener">Ayrıntılar</a>',
-        unknown: 'Kaydedildi. Site 1–2 dakika içinde güncellenecek.',
+        wait: '<span class="warn">' + esc(T('pub.wait')) + '</span>',
+        run: '<span class="warn">' + esc(T('pub.run')) + '</span> ' + esc(T('pub.runNote')),
+        done: '<span class="ok">' + esc(T('pub.done')) + '</span> ' + esc(T('pub.doneNote')),
+        fail: '<span class="err">' + esc(T('pub.fail')) + '</span> <a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(T('pub.details')) + '</a>',
+        unknown: esc(T('saved')),
       }[p.state];
     }
     $('status').innerHTML = msg;
@@ -238,7 +232,7 @@
   }
   function toast(t) { var el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 4000); }
   function rerender() { var y = window.scrollY; render(); window.scrollTo(0, y); }
-  var label = function (k) { return LABELS[k] || k; };
+  var label = function (k) { return I18N[UI].labels[k] || I18N.en.labels[k] || k; };
 
   // A text value in three languages. get(lang) / set(lang, value)
   function tri(title, get, set, opts) {
@@ -263,10 +257,10 @@
     opts = opts || {};
     var mv = function (d) { return function () { var j = i + d; var x = arr[i]; arr[i] = arr[j]; arr[j] = x; if (opts.mirror) opts.mirror(function (a) { var y = a[i]; a[i] = a[j]; a[j] = y; }); onChange(); }; };
     return h('div', { class: 'tools' },
-      h('button', { type: 'button', title: 'Yukarı taşı', disabled: i === 0, onclick: mv(-1) }, '↑'),
-      h('button', { type: 'button', title: 'Aşağı taşı', disabled: i === arr.length - 1, onclick: mv(1) }, '↓'),
-      opts.noDelete ? null : h('button', { type: 'button', class: 'del', title: 'Sil', disabled: opts.keepOne && arr.length < 2, onclick: function () {
-        if (!confirm('Bu öğe silinsin mi?')) return;
+      h('button', { type: 'button', title: T('up'), disabled: i === 0, onclick: mv(-1) }, '↑'),
+      h('button', { type: 'button', title: T('down'), disabled: i === arr.length - 1, onclick: mv(1) }, '↓'),
+      opts.noDelete ? null : h('button', { type: 'button', class: 'del', title: T('del'), disabled: opts.keepOne && arr.length < 2, onclick: function () {
+        if (!confirm(T('confirmDel'))) return;
         if (opts.beforeDelete) opts.beforeDelete(arr[i]);
         arr.splice(i, 1); if (opts.mirror) opts.mirror(function (a) { a.splice(i, 1); }); onChange();
       } }, '✕'));
@@ -293,7 +287,7 @@
           S.uploads[p] = { url: url, b64: url.split(',')[1] };
           updateBar(); (done || rerender)();
         };
-        img.onerror = function () { alert('Bu dosya resim olarak açılamadı.'); };
+        img.onerror = function () { alert(T('imgFail')); };
         img.src = reader.result;
       };
       reader.readAsDataURL(file);
@@ -305,10 +299,10 @@
     opts = opts || {};
     var st = imgState(p);
     return h('div', { class: 'imgbox' },
-      h('div', { class: 'thumb' + (opts.portrait ? ' portrait' : '') + (st && st.isNew ? ' new' : '') }, st ? h('img', { src: st.url, alt: '' }) : 'Resim yok'),
+      h('div', { class: 'thumb' + (opts.portrait ? ' portrait' : '') + (st && st.isNew ? ' new' : '') }, st ? h('img', { src: st.url, alt: '' }) : T('noImg')),
       h('div', { class: 'row' },
-        h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: function () { pickImage(p, opts.max || 1600); } }, st ? 'Değiştir' : 'Resim yükle'),
-        st ? h('button', { type: 'button', class: 'btn btn--danger btn--sm', onclick: function () { removeImage(p); updateBar(); rerender(); } }, 'Kaldır') : null));
+        h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: function () { pickImage(p, opts.max || 1600); } }, st ? T('change') : T('upload')),
+        st ? h('button', { type: 'button', class: 'btn btn--danger btn--sm', onclick: function () { removeImage(p); updateBar(); rerender(); } }, T('remove')) : null));
   }
 
   // ---------- generic three-language tree editor for content/<lang>.json ----------
@@ -354,7 +348,7 @@
         var tpl = blank(v[v.length - 1]);
         LANGS.forEach(function (l) { var a = at(L(l[0]), p); if (!Array.isArray(a)) { a = []; setAt(L(l[0]), p, a); } a.push(JSON.parse(JSON.stringify(tpl))); });
         rerender();
-      } }, '+ Yeni öğe ekle'));
+      } }, T('addItem')));
       return list;
     }
     if (v && typeof v === 'object') {
@@ -366,14 +360,11 @@
   }
 
   // ---------- views ----------
-  var VIEWS = [
-    ['home', 'Başlangıç'], ['texts', 'Sayfa metinleri'], ['menu', 'Menü'], ['staff', 'Öğretmenler'], ['news', 'Haberler'],
-    ['pages', 'Ek sayfalar'], ['images', 'Resimler'], ['settings', 'İletişim ve ayarlar'],
-  ];
+  var VIEWS = ['home', 'texts', 'menu', 'staff', 'news', 'pages', 'images', 'settings'];
   function nav() {
     var n = $('side-nav'); n.innerHTML = '';
     VIEWS.forEach(function (v) {
-      n.appendChild(h('button', { type: 'button', 'aria-current': S.view === v[0] ? 'true' : 'false', onclick: function () { go(v[0]); } }, h('span', { class: 'dot' }), v[1]));
+      n.appendChild(h('button', { type: 'button', 'aria-current': S.view === v ? 'true' : 'false', onclick: function () { go(v); } }, h('span', { class: 'dot' }), T('v.' + v)));
     });
   }
   function go(v) { S.view = v; document.body.classList.remove('side-open'); render(); window.scrollTo(0, 0); }
@@ -386,32 +377,21 @@
 
   var R = {
     home: function () {
-      var tile = function (v, t, d) { return h('button', { type: 'button', class: 'tile', onclick: function () { go(v); } }, h('strong', null, t), h('span', null, d)); };
+      var tile = function (v) { return h('button', { type: 'button', class: 'tile', onclick: function () { go(v); } }, h('strong', null, T('v.' + v)), h('span', null, T('tile.' + v))); };
       return h('div', null,
-        h('h1', null, 'Hoş geldiniz'),
-        h('p', { class: 'lead' }, 'Buradan sitenin her şeyini değiştirebilirsiniz. Değişiklikler önce bu panelde tutulur; sağ üstteki “Kaydet ve yayınla” düğmesine bastığınızda site 1–2 dakika içinde güncellenir.'),
-        h('div', { class: 'tiles' },
-          tile('texts', 'Sayfa metinleri', 'Tüm sayfalardaki başlıklar, yazılar, SSS, kulüpler, takvim… üç dilde.'),
-          tile('menu', 'Menü', 'Menüdeki sayfaların sırası, adı, gösterilip gizlenmesi.'),
-          tile('staff', 'Öğretmenler', 'Ad, görev, bölüm ve fotoğraf; yeni öğretmen ekleme.'),
-          tile('news', 'Haberler', 'Fotoğraflı haber ve duyuru yazma.'),
-          tile('pages', 'Ek sayfalar', 'Menüye yeni sayfa ekleme (ör. Yaz okulu, Burslar).'),
-          tile('images', 'Resimler', 'Sayfalardaki fotoğrafları yükleme ve değiştirme.'),
-          tile('settings', 'İletişim ve ayarlar', 'Telefon, WhatsApp, adres, Instagram, harita bağlantısı.')),
-        h('div', { class: 'card', style: 'margin-top:1.4rem' }, h('h2', null, 'Nasıl çalışır?'),
-          h('ol', { class: 'steps-help' },
-            h('li', null, 'Soldaki menüden bir bölüm seçin ve değişikliklerinizi yapın. Her metnin EN / KG / RU olmak üzere üç kutusu vardır.'),
-            h('li', null, 'Bir paragrafı ayırmak için arada boş bir satır bırakın. Kalın yazı için **iki yıldız** arasına alın.'),
-            h('li', null, '“Kaydet ve yayınla”ya basın. Üst çubukta “✓ Yayınlandı” yazınca siteyi yenileyin.'),
-            h('li', null, 'Kaydetmeden önce vazgeçerseniz “Geri al” ile son kaydedilen hale dönebilirsiniz.'))));
+        h('h1', null, T('home.title')),
+        h('p', { class: 'lead' }, T('home.lead')),
+        h('div', { class: 'tiles' }, VIEWS.slice(1).map(tile)),
+        h('div', { class: 'card', style: 'margin-top:1.4rem' }, h('h2', null, T('how.title')),
+          h('ol', { class: 'steps-help' }, [1, 2, 3, 4].map(function (i) { return h('li', null, T('how.' + i)); }))));
     },
 
     texts: function () {
-      var tabs = h('div', { class: 'tabs' }, TEXT_PAGES.map(function (t) {
-        return h('button', { type: 'button', 'aria-current': S.textPage === t[0] ? 'true' : 'false', onclick: function () { S.textPage = t[0]; rerender(); } }, t[1]);
+      var tabs = h('div', { class: 'tabs' }, TEXT_PAGES.map(function (k) {
+        return h('button', { type: 'button', 'aria-current': S.textPage === k ? 'true' : 'false', onclick: function () { S.textPage = k; rerender(); } }, (I18N[UI].pagesTabs || I18N.en.pagesTabs)[k]);
       }));
-      return h('div', null, h('h1', null, 'Sayfa metinleri'),
-        h('p', { class: 'lead' }, 'Bir sayfa seçin. Her alanın İngilizce (EN), Kırgızca (KG) ve Rusça (RU) karşılığı yan yana durur. Listelere öğe ekleyebilir, sırasını değiştirebilir veya silebilirsiniz.'),
+      return h('div', null, h('h1', null, T('v.texts')),
+        h('p', { class: 'lead' }, T('texts.lead')),
         tabs, h('div', { class: 'card' }, editNode([S.textPage], S.textPage, 0)));
     },
 
@@ -430,17 +410,17 @@
         list.appendChild(h('div', { class: 'item' },
           h('div', { class: 'menu-row' },
             h('span', { class: 'num', style: 'width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#442F90;color:#fff;font-weight:800;font-size:.78rem' }, String(i + 1)),
-            h('div', null, h('strong', null, custom ? 'Ek sayfa' : BUILTIN[m.key]), ' ', h('span', { class: 'badge' + (custom ? ' custom' : '') }, custom ? 'page-' + pg.slug + '.html' : m.key),
-              ' ', h('label', { class: 'switch' }, sw, 'Menüde göster')),
+            h('div', null, h('strong', null, custom ? T('menu.custom') : builtinName(m.key)), ' ', h('span', { class: 'badge' + (custom ? ' custom' : '') }, custom ? 'page-' + pg.slug + '.html' : m.key),
+              ' ', h('label', { class: 'switch' }, sw, T('menu.show'))),
             tools(site.menu, i, rerender, { noDelete: true })),
           custom
-            ? tri('Menüdeki adı (sayfa başlığı)', function (l) { return (pg.title || {})[l]; }, function (l, v) { pg.title = pg.title || {}; pg.title[l] = v; })
-            : tri('Menüdeki adı', function (l) { return L(l).nav[m.key]; }, function (l, v) { L(l).nav[m.key] = v; })));
+            ? tri(T('menu.nameCustom'), function (l) { return (pg.title || {})[l]; }, function (l, v) { pg.title = pg.title || {}; pg.title[l] = v; })
+            : tri(T('menu.name'), function (l) { return L(l).nav[m.key]; }, function (l, v) { L(l).nav[m.key] = v; })));
       });
-      return h('div', null, h('h1', null, 'Menü'),
-        h('p', { class: 'lead' }, 'Sayfaların menüdeki sırasını oklarla değiştirin. “Menüde göster” işaretini kaldırdığınız sayfa menüden kalkar ama sitede bağlantılarla ulaşılabilir kalır. Ana sayfa her zaman logodadır. Yeni sayfa eklemek için “Ek sayfalar” bölümünü kullanın.'),
+      return h('div', null, h('h1', null, T('v.menu')),
+        h('p', { class: 'lead' }, T('menu.lead')),
         h('div', { class: 'card' }, list,
-          tri('Sağ üstteki başvuru düğmesi', function (l) { return L(l).nav.apply; }, function (l, v) { L(l).nav.apply = v; })));
+          tri(T('menu.apply'), function (l) { return L(l).nav.apply; }, function (l, v) { L(l).nav.apply = v; })));
     },
 
     staff: function () {
@@ -456,17 +436,17 @@
           h('div', { class: 'person' },
             imageBox('assets/img/staff/' + m.id + '.jpg', { portrait: true, max: 800 }),
             h('div', null,
-              tri('Ad soyad', function (l) { return m.name[l]; }, function (l, v) { m.name[l] = v; }, { hint: 'Boş bırakılırsa “Ad Soyad” görünür' }),
-              tri('Görevi / dersi', function (l) { return m.role[l]; }, function (l, v) { m.role[l] = v; }),
-              h('div', { class: 'field' }, h('label', null, 'Bölüm'), sel)))));
+              tri(T('staff.name'), function (l) { return m.name[l]; }, function (l, v) { m.name[l] = v; }, { hint: T('staff.nameHint') }),
+              tri(T('staff.role'), function (l) { return m.role[l]; }, function (l, v) { m.role[l] = v; }),
+              h('div', { class: 'field' }, h('label', null, T('staff.dept')), sel)))));
       });
-      return h('div', null, h('h1', null, 'Öğretmenler'),
-        h('p', { class: 'lead' }, 'Fotoğraf için kare veya dikey, yüzün ortada olduğu bir resim seçin; otomatik küçültülür. Bölüm adlarını “Sayfa metinleri → Öğretmenler sayfası → Bölüm adları”ndan değiştirebilirsiniz.'),
+      return h('div', null, h('h1', null, T('v.staff')),
+        h('p', { class: 'lead' }, T('staff.lead')),
         list,
         h('button', { type: 'button', class: 'btn btn--primary', onclick: function () {
           staff.push({ id: 'staff-' + Date.now().toString(36), dept: Object.keys(depts)[1] || 'lead', name: { en: '', ky: '', ru: '' }, role: { en: '', ky: '', ru: '' } });
           rerender(); window.scrollTo(0, document.body.scrollHeight);
-        } }, '+ Yeni öğretmen ekle'));
+        } }, T('staff.add')));
     },
 
     news: function () {
@@ -476,25 +456,25 @@
         var sw = h('input', { type: 'checkbox', checked: n.show !== false });
         sw.onchange = function () { n.show = sw.checked; updateBar(); };
         list.appendChild(h('div', { class: 'item' },
-          h('div', { class: 'item-head' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'ttl' }, (n.date || '') + ' · ' + (n.title.en || n.title.ru || n.title.ky || 'Yeni haber')),
+          h('div', { class: 'item-head' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'ttl' }, (n.date || '') + ' · ' + (n.title.en || n.title.ru || n.title.ky || T('news.untitled'))),
             tools(news, i, rerender, { beforeDelete: function (x) { removeImage('assets/img/news/' + x.id + '.jpg'); } })),
           h('div', { class: 'person' },
             imageBox('assets/img/news/' + n.id + '.jpg', { max: 1600 }),
             h('div', null,
-              h('div', { class: 'grid2' }, single('Tarih', function () { return n.date; }, function (v) { n.date = v; }, { type: 'date' }),
-                h('div', { class: 'field' }, h('label', null, 'Yayın'), h('label', { class: 'switch' }, sw, 'Sitede göster'))),
-              tri('Başlık', function (l) { return n.title[l]; }, function (l, v) { n.title[l] = v; }),
-              tri('Kısa özet', function (l) { return n.summary[l]; }, function (l, v) { n.summary[l] = v; }, { long: true, rows: 2, hint: 'Kartta görünür' }),
-              tri('Haber metni', function (l) { return n.body[l]; }, function (l, v) { n.body[l] = v; }, { long: true, rows: 8, hint: 'Paragraflar arasında boş satır bırakın' })))));
+              h('div', { class: 'grid2' }, single(T('news.date'), function () { return n.date; }, function (v) { n.date = v; }, { type: 'date' }),
+                h('div', { class: 'field' }, h('label', null, T('news.publish')), h('label', { class: 'switch' }, sw, T('news.show')))),
+              tri(T('news.title'), function (l) { return n.title[l]; }, function (l, v) { n.title[l] = v; }),
+              tri(T('news.summary'), function (l) { return n.summary[l]; }, function (l, v) { n.summary[l] = v; }, { long: true, rows: 2, hint: T('news.summaryHint') }),
+              tri(T('news.body'), function (l) { return n.body[l]; }, function (l, v) { n.body[l] = v; }, { long: true, rows: 8, hint: T('news.bodyHint') })))));
       });
-      return h('div', null, h('h1', null, 'Haberler'),
-        h('p', { class: 'lead' }, 'Haberler en yeni tarih en üstte olacak şekilde Haberler sayfasında, son üç haber de ana sayfada görünür. Her haberin kendi sayfası olur.'),
+      return h('div', null, h('h1', null, T('v.news')),
+        h('p', { class: 'lead' }, T('news.lead')),
         h('button', { type: 'button', class: 'btn btn--primary', style: 'margin-bottom:1rem', onclick: function () {
           var d = new Date().toISOString().slice(0, 10);
           news.unshift({ id: d + '-' + Math.random().toString(36).slice(2, 6), date: d, show: true, title: { en: '', ky: '', ru: '' }, summary: { en: '', ky: '', ru: '' }, body: { en: '', ky: '', ru: '' } });
           rerender();
-        } }, '+ Yeni haber yaz'),
-        news.length ? list : h('div', { class: 'card muted' }, 'Henüz haber yok.'));
+        } }, T('news.add')),
+        news.length ? list : h('div', { class: 'card muted' }, T('news.empty')));
     },
 
     pages: function () {
@@ -502,7 +482,7 @@
       var list = h('div');
       pages.forEach(function (pg, i) {
         list.appendChild(h('div', { class: 'item' },
-          h('div', { class: 'item-head' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'ttl' }, (pg.title.en || pg.title.ru || 'Yeni sayfa') + ' — page-' + pg.slug + '.html'),
+          h('div', { class: 'item-head' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'ttl' }, (pg.title.en || pg.title.ru || T('pages.untitled')) + ' — page-' + pg.slug + '.html'),
             tools(pages, i, rerender, { beforeDelete: function (x) {
               removeImage('assets/img/pages/' + x.slug + '.jpg');
               site.menu = site.menu.filter(function (m) { return m.key !== 'p:' + x.slug; });
@@ -510,30 +490,30 @@
           h('div', { class: 'person' },
             imageBox('assets/img/pages/' + pg.slug + '.jpg', { max: 1600 }),
             h('div', null,
-              tri('Sayfa başlığı (menüde de bu görünür)', function (l) { return pg.title[l]; }, function (l, v) { pg.title[l] = v; }),
-              tri('Giriş metni', function (l) { return pg.lead[l]; }, function (l, v) { pg.lead[l] = v; }, { long: true, rows: 2 }),
-              tri('Sayfa metni', function (l) { return pg.body[l]; }, function (l, v) { pg.body[l] = v; }, { long: true, rows: 10, hint: 'Paragraflar arasında boş satır; **kalın**; [bağlantı](https://…)' })))));
+              tri(T('pages.title'), function (l) { return pg.title[l]; }, function (l, v) { pg.title[l] = v; }),
+              tri(T('pages.intro'), function (l) { return pg.lead[l]; }, function (l, v) { pg.lead[l] = v; }, { long: true, rows: 2 }),
+              tri(T('pages.body'), function (l) { return pg.body[l]; }, function (l, v) { pg.body[l] = v; }, { long: true, rows: 10, hint: T('pages.bodyHint') })))));
       });
-      return h('div', null, h('h1', null, 'Ek sayfalar'),
-        h('p', { class: 'lead' }, 'Kendi sayfalarınızı oluşturun (ör. Burslar, Yaz okulu, Velilere duyuru). Yeni sayfa menünün sonuna eklenir; sırasını ve görünürlüğünü “Menü” bölümünden değiştirebilirsiniz.'),
+      return h('div', null, h('h1', null, T('v.pages')),
+        h('p', { class: 'lead' }, T('pages.lead')),
         h('button', { type: 'button', class: 'btn btn--primary', style: 'margin-bottom:1rem', onclick: function () {
-          var name = prompt('Sayfanın adresinde kullanılacak kısa ad (Latin harfleri, ör. “scholarships”):', '');
+          var name = prompt(T('pages.prompt'), '');
           if (name == null) return;
           var slug = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('page-' + Date.now().toString(36));
-          if (pages.some(function (x) { return x.slug === slug; })) { alert('Bu adla bir sayfa zaten var.'); return; }
+          if (pages.some(function (x) { return x.slug === slug; })) { alert(T('pages.exists')); return; }
           pages.push({ slug: slug, title: { en: '', ky: '', ru: '' }, lead: { en: '', ky: '', ru: '' }, body: { en: '', ky: '', ru: '' } });
           site.menu.push({ key: 'p:' + slug, show: true });
           rerender(); window.scrollTo(0, document.body.scrollHeight);
-        } }, '+ Yeni sayfa oluştur'),
-        pages.length ? list : h('div', { class: 'card muted' }, 'Henüz ek sayfa yok.'));
+        } }, T('pages.add')),
+        pages.length ? list : h('div', { class: 'card muted' }, T('pages.empty')));
     },
 
     images: function () {
       var slots = S.files.images.data;
-      return h('div', null, h('h1', null, 'Resimler'),
-        h('p', { class: 'lead' }, 'Her kutu sitedeki bir fotoğraf alanıdır. Resim yüklenmemiş alanlarda sitede renkli bir desen görünür. Büyük fotoğraflar otomatik küçültülür. Öğretmen, haber ve ek sayfa fotoğrafları kendi bölümlerindedir.'),
+      return h('div', null, h('h1', null, T('v.images')),
+        h('p', { class: 'lead' }, T('images.lead')),
         h('div', { class: 'imgs' }, slots.map(function (s) {
-          return h('div', { class: 'img-card' }, h('span', { class: 'label' }, s.label), imageBox('assets/img/' + s.file, { max: 1800 }));
+          return h('div', { class: 'img-card' }, h('span', { class: 'label' }, typeof s.label === 'string' ? s.label : s.label[UI] || s.label.en), imageBox('assets/img/' + s.file, { max: 1800 }));
         })));
     },
 
@@ -545,27 +525,27 @@
           (function () { var x = h('input', { placeholder: '+996 700 00 00 00' }); x.value = p.label; x.oninput = function () { p.label = x.value; p.tel = '+' + x.value.replace(/\D/g, ''); updateBar(); }; return x; })(),
           tools(site.phones, i, rerender)));
       });
-      phones.appendChild(h('button', { type: 'button', class: 'btn btn--ghost btn--sm add', onclick: function () { site.phones.push({ label: '', tel: '' }); rerender(); } }, '+ Telefon ekle'));
+      phones.appendChild(h('button', { type: 'button', class: 'btn btn--ghost btn--sm add', onclick: function () { site.phones.push({ label: '', tel: '' }); rerender(); } }, T('set.addPhone')));
       var common = function (k, t, o) { return tri(t, function (l) { return L(l).common[k]; }, function (l, v) { L(l).common[k] = v; }, o); };
-      return h('div', null, h('h1', null, 'İletişim ve ayarlar'),
-        h('p', { class: 'lead' }, 'Bu bilgiler sitenin altındaki bölümde, İletişim sayfasında ve düğmelerde kullanılır.'),
-        h('div', { class: 'card' }, h('h2', null, 'Telefonlar'), phones),
+      return h('div', null, h('h1', null, T('v.settings')),
+        h('p', { class: 'lead' }, T('set.lead')),
+        h('div', { class: 'card' }, h('h2', null, T('set.phones')), phones),
         h('div', { class: 'card' }, h('h2', null, 'WhatsApp'),
-          single('WhatsApp numarası', function () { return site.whatsapp; }, function (v) { site.whatsapp = v.replace(/\D/g, ''); }, { placeholder: '996700000000', hint: 'Yalnızca rakam, başında 996. Boş bırakılırsa form ve düğmeler Instagram mesajını açar.' })),
-        h('div', { class: 'card' }, h('h2', null, 'Adres ve saatler'),
-          common('address', 'Adres (uzun)'), common('addressShort', 'Adres (kısa)'), common('hoursVal', 'Çalışma saatleri'),
-          single('2GIS harita bağlantısı', function () { return site.map; }, function (v) { site.map = v.trim(); })),
-        h('div', { class: 'card' }, h('h2', null, 'Sosyal medya ve bağlantılar'),
+          single(T('set.waNum'), function () { return site.whatsapp; }, function (v) { site.whatsapp = v.replace(/\D/g, ''); }, { placeholder: '996700000000', hint: T('set.waHint') })),
+        h('div', { class: 'card' }, h('h2', null, T('set.addr')),
+          common('address', label('address')), common('addressShort', label('addressShort')), common('hoursVal', label('hoursVal')),
+          single(T('set.map'), function () { return site.map; }, function (v) { site.map = v.trim(); })),
+        h('div', { class: 'card' }, h('h2', null, T('set.social')),
           h('div', { class: 'grid2' },
-            single('Instagram adresi', function () { return site.instagram; }, function (v) { site.instagram = v.trim(); }),
-            single('Instagram kullanıcı adı', function () { return site.handle; }, function (v) { site.handle = v.trim(); }),
-            single('Instagram mesaj bağlantısı', function () { return site.dm; }, function (v) { site.dm = v.trim(); }, { hint: 'ig.me/m/kullanıcıadı' }),
-            single('Indigo Academy sitesi', function () { return site.network; }, function (v) { site.network = v.trim(); }))),
-        h('div', { class: 'card' }, h('h2', null, 'Gelişmiş'),
+            single(T('set.ig'), function () { return site.instagram; }, function (v) { site.instagram = v.trim(); }),
+            single(T('set.igHandle'), function () { return site.handle; }, function (v) { site.handle = v.trim(); }),
+            single(T('set.igDm'), function () { return site.dm; }, function (v) { site.dm = v.trim(); }, { hint: T('set.igDmHint') }),
+            single(T('set.network'), function () { return site.network; }, function (v) { site.network = v.trim(); }))),
+        h('div', { class: 'card' }, h('h2', null, T('set.adv')),
           h('div', { class: 'grid2' },
-            single('Sitenin adresi', function () { return site.url; }, function (v) { site.url = v.trim().replace(/\/$/, ''); }, { hint: 'Google ve paylaşımlar için' }),
-            single('Özel alan adı', function () { return site.customDomain; }, function (v) { site.customDomain = v.trim(); }, { hint: 'ör. indigoprime.edu.kg — DNS ayarı da gerekir' }),
-            single('Asistan sunucusu', function () { return site.aiEndpoint; }, function (v) { site.aiEndpoint = v.trim(); }, { hint: 'Boşsa asistan sitedeki metinlerden arar' }))));
+            single(T('set.url'), function () { return site.url; }, function (v) { site.url = v.trim().replace(/\/$/, ''); }, { hint: T('set.urlHint') }),
+            single(T('set.domain'), function () { return site.customDomain; }, function (v) { site.customDomain = v.trim(); }, { hint: T('set.domainHint') }),
+            single(T('set.ai'), function () { return site.aiEndpoint; }, function (v) { site.aiEndpoint = v.trim(); }, { hint: T('set.aiHint') }))));
     },
   };
 
@@ -577,7 +557,7 @@
     }).catch(function (e) {
       $('loading').hidden = true; $('app').hidden = true; $('login').hidden = false;
       var err = $('login-error'); err.hidden = false;
-      err.textContent = e.status === 401 ? 'Erişim anahtarı geçersiz ya da süresi dolmuş.' : e.status === 404 || e.status === 403 ? 'Bu anahtarla depoya erişilemiyor. Depo izni ve “Contents” iznini kontrol edin.' : 'Yüklenemedi: ' + e.message;
+      err.textContent = e.status === 401 ? T('err401') : e.status === 404 || e.status === 403 ? T('errNoAccess') : T('errLoad', e.message);
       try { localStorage.removeItem(TOKEN_KEY); } catch (x) {}
     });
   }
@@ -588,13 +568,13 @@
     $('login-error').hidden = true; start();
   });
   $('logout').addEventListener('click', function () {
-    if (dirty().files.length + dirty().uploads.length && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Çıkılsın mı?')) return;
+    if (dirty().files.length + dirty().uploads.length && !confirm(T('confirm.logout'))) return;
     try { localStorage.removeItem(TOKEN_KEY); } catch (x) {}
     location.reload();
   });
   $('save').addEventListener('click', save);
   $('discard').addEventListener('click', function () {
-    if (!confirm('Kaydedilmemiş tüm değişiklikler silinsin mi?')) return;
+    if (!confirm(T('confirm.discard'))) return;
     FILES.forEach(function (f) { S.files[f].data = JSON.parse(S.files[f].text); });
     S.uploads = {}; render();
   });
@@ -603,6 +583,28 @@
     if (!S.files.site) return;
     var d = dirty(); if (d.files.length || d.uploads.length) { e.preventDefault(); e.returnValue = ''; }
   });
+
+  // Static texts in index.html and the EN / KG / RU / TR switchers
+  function applyStatic() {
+    document.documentElement.lang = UI;
+    [].forEach.call(document.querySelectorAll('[data-i18n]'), function (el) { el.textContent = T(el.getAttribute('data-i18n')); });
+    [].forEach.call(document.querySelectorAll('[data-i18n-html]'), function (el) { el.innerHTML = T(el.getAttribute('data-i18n-html')); });
+    [].forEach.call(document.querySelectorAll('[data-i18n-aria]'), function (el) { el.setAttribute('aria-label', T(el.getAttribute('data-i18n-aria'))); });
+    [].forEach.call(document.querySelectorAll('[data-lang-pick]'), function (box) {
+      box.innerHTML = '';
+      box.setAttribute('role', 'group'); box.setAttribute('aria-label', T('side.lang'));
+      [['en', 'EN'], ['ky', 'KG'], ['ru', 'RU'], ['tr', 'TR']].forEach(function (l) {
+        box.appendChild(h('button', { type: 'button', title: I18N[l[0]]._name, 'aria-pressed': UI === l[0] ? 'true' : 'false', onclick: function () { setUI(l[0]); } }, l[1]));
+      });
+    });
+  }
+  function setUI(lang) {
+    UI = lang;
+    try { localStorage.setItem(UI_KEY, lang); } catch (x) {}
+    applyStatic();
+    if (S.files.site && !$('app').hidden) rerender();
+  }
+  applyStatic();
 
   try { S.token = localStorage.getItem(TOKEN_KEY) || ''; } catch (x) {}
   if (S.token) start(); else { $('loading').hidden = true; $('login').hidden = false; }

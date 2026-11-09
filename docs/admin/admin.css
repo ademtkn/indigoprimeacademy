@@ -140,3 +140,11 @@ label { font-weight: 700; font-size: .85rem; }
   .person { grid-template-columns: 1fr; }
 }
 @media (max-width: 420px) { .bar-actions .btn { padding: .55rem .8rem; font-size: .82rem; } }
+
+/* panel language switch */
+.lang-pick { display: inline-flex; justify-self: center; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
+.lang-pick button { border: 0; background: none; padding: .3rem .6rem; border-radius: 999px; font: 800 .74rem/1.2 var(--f-body); letter-spacing: .06em; color: var(--muted); cursor: pointer; }
+.lang-pick button[aria-pressed="true"] { background: var(--primary); color: #fff; }
+.lang-pick--dark { justify-self: start; border-color: rgba(255,255,255,.25); margin-bottom: .4rem; }
+.lang-pick--dark button { color: rgba(255,255,255,.75); }
+.lang-pick--dark button[aria-pressed="true"] { background: #fff; color: var(--primary-ink); }
