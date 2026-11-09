@@ -1,0 +1,14 @@
+[
+  { "file": "photos/home-welcome.jpg", "label": "Ana sayfa — karşılama (dikey)" },
+  { "file": "photos/life-1.jpg", "label": "Okul hayatı kolajı 1 (büyük, dikey)" },
+  { "file": "photos/life-2.jpg", "label": "Okul hayatı kolajı 2" },
+  { "file": "photos/life-3.jpg", "label": "Okul hayatı kolajı 3" },
+  { "file": "photos/about-story.jpg", "label": "Hakkımızda — hikayemiz (dikey)" },
+  { "file": "photos/director.jpg", "label": "Hakkımızda — müdür (dikey)" },
+  { "file": "photos/stage-1.jpg", "label": "Programlar — Lower Secondary (7–8)" },
+  { "file": "photos/stage-2.jpg", "label": "Programlar — IGCSE (9–10)" },
+  { "file": "photos/stage-3.jpg", "label": "Programlar — A Level (11–12)" },
+  { "file": "photos/languages.jpg", "label": "Programlar — diller (dikey)" },
+  { "file": "photos/news-instagram.jpg", "label": "Haberler — Instagram kartı" },
+  { "file": "photos/news-network.jpg", "label": "Haberler — Indigo Academy kartı" }
+]

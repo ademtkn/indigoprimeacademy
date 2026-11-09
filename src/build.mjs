@@ -4,64 +4,28 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { icon } from './icons.mjs';
-import en from './content/en.mjs';
-import ky from './content/ky.mjs';
-import ru from './content/ru.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'docs');
+// Everything editable lives in content/*.json — the admin panel (/admin/) writes these files.
+const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'content', f), 'utf8'));
+const [en, ky, ru] = ['en', 'ky', 'ru'].map((l) => read(`${l}.json`));
 const LANGS = [en, ky, ru]; // first = default language
 
-// ---------- School facts (edit here) ----------
-const SITE = {
-  // Until a domain is connected the site lives on GitHub Pages' own address.
-  url: 'https://ademtkn.github.io/indigoprimeacademy',
-  customDomain: '',
-  // Fill in to show phone numbers everywhere: { label: '+996 700 00 00 00', tel: '+996700000000' }
-  phones: [],
-  // WhatsApp number without "+" (e.g. '996700000000'). While empty, the contact form and
-  // WhatsApp buttons open an Instagram direct message instead.
-  whatsapp: '',
-  instagram: 'https://www.instagram.com/indigoprimeacademy/',
-  dm: 'https://ig.me/m/indigoprimeacademy',
-  handle: '@indigoprimeacademy',
-  map: 'https://2gis.kg/bishkek?m=74.628493%2C42.843915%2F17',
-  network: 'https://indigo.edu.kg/',
-  // AI assistant backend (see server/). Empty = answers from the site's own content only.
-  aiEndpoint: '',
-};
+// School facts, menu order and visibility (content/site.json)
+const SITE = read('site.json');
+// Staff: { id, dept, name: {en,ky,ru}, role: {en,ky,ru} }; portrait at assets/img/staff/<id>.jpg
+const STAFF = read('staff.json');
+// News posts: { id, date, show, title, summary, body } (each text {en,ky,ru}); image at assets/img/news/<id>.jpg
+const NEWS = read('news.json').filter((n) => n.show !== false).sort((x, y) => String(y.date).localeCompare(String(x.date)));
+// Extra pages made in the admin: { slug, title, lead, body }; image at assets/img/pages/<slug>.jpg
+const CUSTOM = read('pages.json');
+
 const chat = () => (SITE.whatsapp ? `https://wa.me/${SITE.whatsapp}` : SITE.dm);
 const chatLabel = (t) => (SITE.whatsapp ? t.common.whatsapp : t.common.instagramDm);
 const chatIcon = () => (SITE.whatsapp ? 'whatsapp' : 'instagram');
 
-// Staff list. Put a photo at assets/img/staff/<id>.jpg and fill in `name`
-// (one value per language, or a single string) to replace the placeholder.
-const STAFF = [
-  { id: 'director', d: 'lead', name: null },
-  { id: 'deputyAcademic', d: 'lead', name: null },
-  { id: 'cambridgeCoord', d: 'lead', name: null },
-  { id: 'pastoral', d: 'lead', name: null },
-  { id: 'math1', d: 'stem', name: null },
-  { id: 'math2', d: 'stem', name: null },
-  { id: 'physics', d: 'stem', name: null },
-  { id: 'chemistry', d: 'stem', name: null },
-  { id: 'biology', d: 'stem', name: null },
-  { id: 'cs', d: 'stem', name: null },
-  { id: 'english1', d: 'lang', name: null },
-  { id: 'english2', d: 'lang', name: null },
-  { id: 'kyrgyz', d: 'lang', name: null },
-  { id: 'russian', d: 'lang', name: null },
-  { id: 'history', d: 'hum', name: null },
-  { id: 'geography', d: 'hum', name: null },
-  { id: 'business', d: 'hum', name: null },
-  { id: 'art', d: 'hum', name: null },
-  { id: 'pe', d: 'hum', name: null },
-  { id: 'counsellor', d: 'support', name: null },
-  { id: 'psychologist', d: 'support', name: null },
-  { id: 'admissions', d: 'support', name: null },
-];
-
-const PAGES = [
+const BUILTIN = [
   { key: 'home', file: 'index.html' },
   { key: 'about', file: 'about.html' },
   { key: 'academics', file: 'academics.html' },
@@ -72,6 +36,13 @@ const PAGES = [
   { key: 'news', file: 'news.html' },
   { key: 'contact', file: 'contact.html' },
 ];
+const PAGES = BUILTIN.concat(CUSTOM.map((c) => ({ key: `p:${c.slug}`, file: `page-${c.slug}.html`, custom: c })));
+// Header/footer menu: the order and visibility chosen in the admin; pages missing from the list are appended hidden.
+const MENU = SITE.menu.filter((m) => PAGES.some((p) => p.key === m.key))
+  .concat(PAGES.filter((p) => p.key !== 'home' && !SITE.menu.some((m) => m.key === p.key)).map((p) => ({ key: p.key, show: false })))
+  .filter((m) => m.show).map((m) => PAGES.find((p) => p.key === m.key));
+const tr = (v, t) => (v == null ? '' : typeof v === 'string' ? v : v[t.code] || v.en || '');
+const navLabel = (t, page) => (page.custom ? tr(page.custom.title, t) : t.nav[page.key]);
 const fileOf = (k) => PAGES.find((p) => p.key === k).file;
 const TONES = ['sky', 'indigo', 'blush', 'amber'];
 
@@ -101,11 +72,11 @@ const pillars = (items) => `<div class="pillars">
 
 // ---------- layout ----------
 function layout(t, page, main) {
-  const p = t[page.key];
+  const p = page.meta || t[page.key];
   const title = page.key === 'home' ? p.title : `${p.title} | ${t.brand.full}`;
   const alternates = LANGS.map((l) => `<link rel="alternate" hreflang="${l.htmlLang}" href="${SITE.url}/${l.code}/${page.file}">`).join('\n  ');
-  const navItems = PAGES.filter((x) => x.key !== 'home')
-    .map((x) => `<li><a href="${x.file}"${x.key === page.key ? ' aria-current="page"' : ''}>${esc(t.nav[x.key])}</a></li>`).join('');
+  const navItems = MENU
+    .map((x) => `<li><a href="${x.file}"${x.file === page.file ? ' aria-current="page"' : ''}>${esc(navLabel(t, x))}</a></li>`).join('');
   const langLinks = LANGS.map((l) =>
     `<a href="../${l.code}/${page.file}" hreflang="${l.htmlLang}" lang="${l.htmlLang}" data-lang="${l.code}"${l.code === t.code ? ' aria-current="true"' : ''} title="${esc(l.langName)}">${l.label}</a>`).join('');
 
@@ -165,7 +136,7 @@ ${footer(t)}
 
 function footer(t) {
   const c = t.common;
-  const links = PAGES.map((x) => `<li><a href="${x.file}">${esc(t.nav[x.key])}</a></li>`).join('');
+  const links = [PAGES[0], ...MENU].map((x) => `<li><a href="${x.file}">${esc(navLabel(t, x))}</a></li>`).join('');
   return `<footer class="site-footer">
   <div class="wrap ftr">
     <div class="ftr-brand">
@@ -326,7 +297,14 @@ const render = {
   </div>
 </section>
 
-${visitBand(t)}
+${NEWS.length ? `<section class="sec">
+  <div class="wrap">
+    ${head(t.news.list.eyebrow, t.news.list.title)}
+    ${newsCards(t, NEWS.slice(0, 3))}
+    <p class="more-link"><a class="link" href="${fileOf('news')}">${esc(t.news.list.back)} ${icon('arrow', 'link-ico')}</a></p>
+  </div>
+</section>
+` : ''}${visitBand(t)}
 
 <section class="sec">
   <div class="wrap social">
@@ -601,14 +579,13 @@ ${visitBand(t)}`;
   staff(t) {
     const s = t.staff;
     const depts = Object.keys(s.depts);
-    const nameOf = (m) => (m.name == null ? null : typeof m.name === 'string' ? m.name : m.name[t.code]);
     const card = (m, i) => {
-      const name = nameOf(m);
-      return `<li class="person" data-dept="${m.d}">
-        ${photo(`staff/${m.id}.jpg`, m.d === 'lead' ? 'indigo' : TONES[i % 4], 'users', 'ph--portrait')}
+      const name = tr(m.name, t);
+      return `<li class="person" data-dept="${m.dept}">
+        ${photo(`staff/${m.id}.jpg`, m.dept === 'lead' ? 'indigo' : TONES[i % 4], 'users', 'ph--portrait')}
         <div class="person-body">
           <h3${name ? '' : ' class="is-ph"'}>${esc(name || s.namePh)}</h3>
-          <p class="person-role">${esc(s.roles[m.id])}</p>
+          <p class="person-role">${esc(tr(m.role, t))}</p>
         </div>
       </li>`;
     };
@@ -621,7 +598,7 @@ ${visitBand(t)}`;
     </div>
     ${depts.map((d) => `<section class="dept" data-dept-block="${d}">
       <h2 class="dept-title">${esc(s.depts[d])}</h2>
-      <ul class="people ${d === 'lead' ? 'people--lead' : ''}">${STAFF.filter((m) => m.d === d).map(card).join('')}</ul>
+      <ul class="people ${d === 'lead' ? 'people--lead' : ''}">${STAFF.filter((m) => m.dept === d).map(card).join('')}</ul>
     </section>`).join('')}
   </div>
 </section>
@@ -640,7 +617,13 @@ ${visitBand(t)}`;
   news(t) {
     const n = t.news;
     return `${pageHero(t, 'news')}
-<section class="sec">
+${NEWS.length ? `<section class="sec">
+  <div class="wrap">
+    ${head(n.list.eyebrow, n.list.title)}
+    ${newsCards(t, NEWS)}
+  </div>
+</section>` : ''}
+<section class="sec${NEWS.length ? ' sec--mist' : ''}">
   <div class="wrap">
     ${head(n.channels.eyebrow, n.channels.title)}
     <div class="channels">
@@ -656,7 +639,7 @@ ${visitBand(t)}`;
   </div>
 </section>
 
-<section class="sec sec--mist">
+<section class="sec ${NEWS.length ? 'sec--blush' : 'sec--mist'}">
   <div class="wrap narrow">
     ${head(n.calendar.eyebrow, n.calendar.title, '', 'center')}
     <ol class="cal">
@@ -712,6 +695,65 @@ ${visitBand(t)}`;
   },
 };
 
+// Admin-written text: blank line = new paragraph, **bold**, [link](https://…)
+function rich(text) {
+  return String(text || '').trim().split(/\n\s*\n/).filter(Boolean).map((para) => `<p>${esc(para)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|[\w.-]+\.html(?:#[\w-]+)?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\n/g, '<br>')}</p>`).join('\n');
+}
+const newsFile = (n) => `news-${n.id}.html`;
+const fmtDate = (d, t) => {
+  const x = new Date(`${d}T12:00:00Z`);
+  if (Number.isNaN(x.getTime())) return esc(d || '');
+  return new Intl.DateTimeFormat({ en: 'en-GB', ky: 'ky-KG', ru: 'ru-RU' }[t.code], { day: 'numeric', month: 'long', year: 'numeric' }).format(x);
+};
+const newsCards = (t, list) => `<div class="news-grid">
+      ${list.map((n, i) => `<a class="news-card" href="${newsFile(n)}">
+        ${photo(`news/${n.id}.jpg`, TONES[i % 4], 'calendar')}
+        <div class="news-body"><time datetime="${esc(n.date)}">${fmtDate(n.date, t)}</time><h3>${esc(tr(n.title, t))}</h3><p>${esc(tr(n.summary, t))}</p><span class="link">${esc(t.news.list.readMore)} ${icon('arrow', 'link-ico')}</span></div>
+      </a>`).join('')}
+    </div>`;
+
+function newsPost(t, n) {
+  return `<section class="band band--page">
+  ${bits}
+  <div class="wrap band-inner">
+    <nav class="crumbs" aria-label="breadcrumb"><a href="index.html">${esc(t.nav.home)}</a><span aria-hidden="true">/</span><a href="${fileOf('news')}">${esc(t.nav.news)}</a></nav>
+    <h1>${esc(tr(n.title, t))}</h1>
+    <p class="band-lead"><time datetime="${esc(n.date)}">${fmtDate(n.date, t)}</time></p>
+  </div>
+  ${wave}
+</section>
+<section class="sec">
+  <div class="wrap narrow article">
+    ${photoExists(`news/${n.id}.jpg`) ? photo(`news/${n.id}.jpg`, 'indigo', 'calendar', 'article-ph') : ''}
+    <p class="article-lead">${esc(tr(n.summary, t))}</p>
+    ${rich(tr(n.body, t))}
+    <a class="link" href="${fileOf('news')}">← ${esc(t.news.list.back)}</a>
+  </div>
+</section>`;
+}
+
+function customPage(t, c) {
+  return `<section class="band band--page">
+  ${bits}
+  <div class="wrap band-inner">
+    <nav class="crumbs" aria-label="breadcrumb"><a href="index.html">${esc(t.nav.home)}</a><span aria-hidden="true">/</span><span>${esc(tr(c.title, t))}</span></nav>
+    <h1>${esc(tr(c.title, t))}</h1>
+    ${tr(c.lead, t) ? `<p class="band-lead">${esc(tr(c.lead, t))}</p>` : ''}
+  </div>
+  <span class="band-blob" aria-hidden="true"></span>
+  ${wave}
+</section>
+<section class="sec">
+  <div class="wrap ${photoExists(`pages/${c.slug}.jpg`) ? 'split split--top' : 'narrow'}">
+    <div class="prose article">${rich(tr(c.body, t))}</div>
+    ${photoExists(`pages/${c.slug}.jpg`) ? photo(`pages/${c.slug}.jpg`, 'indigo', 'book', 'ph--tall') : ''}
+  </div>
+</section>`;
+}
+
 function contactLines(t) {
   if (!SITE.phones.length) return '';
   return `<ul class="contact-lines">${SITE.phones.map((p) => `<li>${icon('phone')}<a href="tel:${p.tel}">${p.label}</a></li>`).join('')}</ul>`;
@@ -748,7 +790,7 @@ function knowledge(t) {
   const chunks = [];
   const add = (page, url, title, lines) => chunks.push({ page, url, title,
     text: [].concat(lines).map((x) => x.replace(/\s+/g, ' ').trim()).filter((x) => x && x !== title).join('\n') });
-  for (const pg of PAGES) {
+  for (const pg of BUILTIN) {
     const p = t[pg.key];
     const name = t.nav[pg.key];
     add(name, pg.file, p.title, p.lead || p.descr);
@@ -763,12 +805,14 @@ function knowledge(t) {
       add(name, url, sec.eyebrow && sec.eyebrow !== title ? `${sec.eyebrow}: ${title}` : title, lines);
     }
   }
+  for (const pg of PAGES.filter((x) => x.custom)) add(navLabel(t, pg), pg.file, tr(pg.custom.title, t), [tr(pg.custom.lead, t), tr(pg.custom.body, t)]);
+  for (const n of NEWS) add(t.nav.news, newsFile(n), tr(n.title, t), [n.date, tr(n.summary, t), tr(n.body, t)]);
   const s = t.staff;
   add(t.nav.staff, fileOf('staff'), s.title, Object.keys(s.depts).map((d) =>
-    `${s.depts[d]}: ${STAFF.filter((m) => m.d === d).map((m) => {
-      const n = m.name == null ? null : typeof m.name === 'string' ? m.name : m.name[t.code];
-      return n ? `${n} (${s.roles[m.id]})` : s.roles[m.id];
-    }).join('; ')}`).concat(STAFF.some((m) => m.name) ? [] : ['Staff names are not published on the website yet.']));
+    `${s.depts[d]}: ${STAFF.filter((m) => m.dept === d).map((m) => {
+      const n = tr(m.name, t);
+      return n ? `${n} (${tr(m.role, t)})` : tr(m.role, t);
+    }).join('; ')}`).concat(STAFF.some((m) => tr(m.name, t)) ? [] : ['Staff names are not published on the website yet.']));
   const c = t.common;
   add(t.nav.contact, fileOf('contact'), t.contact.title, [
     `${c.address}.`,
@@ -863,13 +907,23 @@ function rootPage() {
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 fs.cpSync(path.join(ROOT, 'assets'), path.join(DIST, 'assets'), { recursive: true });
+fs.cpSync(path.join(ROOT, 'admin'), path.join(DIST, 'admin'), { recursive: true }); // the admin panel
+fs.writeFileSync(path.join(DIST, 'admin', 'config.js'), `window.ADMIN_CONFIG = ${JSON.stringify({ repo: SITE.repo, branch: 'main' })};\n`);
 
 let count = 0;
 for (const t of LANGS) {
   const dir = path.join(DIST, t.code);
   fs.mkdirSync(dir, { recursive: true });
   for (const page of PAGES) {
-    fs.writeFileSync(path.join(dir, page.file), layout(t, page, render[page.key](t)));
+    const html = page.custom
+      ? layout(t, { ...page, meta: { title: tr(page.custom.title, t), descr: tr(page.custom.lead, t) || tr(page.custom.title, t) } }, customPage(t, page.custom))
+      : layout(t, page, render[page.key](t));
+    fs.writeFileSync(path.join(dir, page.file), html);
+    count++;
+  }
+  for (const n of NEWS) {
+    const page = { key: 'news', file: newsFile(n), meta: { title: tr(n.title, t), descr: tr(n.summary, t) || tr(n.title, t) } };
+    fs.writeFileSync(path.join(dir, page.file), layout(t, page, newsPost(t, n)));
     count++;
   }
 }
@@ -885,9 +939,9 @@ fs.writeFileSync(path.join(DIST, 'index.html'), rootPage());
 fs.writeFileSync(path.join(DIST, '.nojekyll'), ''); // serve files as-is, no Jekyll
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${LANGS.flatMap((l) => PAGES.map((p) => `  <url><loc>${SITE.url}/${l.code}/${p.file}</loc></url>`)).join('\n')}
+${LANGS.flatMap((l) => PAGES.map((p) => p.file).concat(NEWS.map(newsFile)).map((f) => `  <url><loc>${SITE.url}/${l.code}/${f}</loc></url>`)).join('\n')}
 </urlset>
 `);
 if (SITE.customDomain) fs.writeFileSync(path.join(DIST, 'CNAME'), SITE.customDomain + '\n'); // GitHub Pages custom domain
-fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE.url}/sitemap.xml\n`);
+fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: ${SITE.url}/sitemap.xml\n`);
 console.log(`Built ${count} pages in ${LANGS.length} languages → ${path.relative(ROOT, DIST)}/`);

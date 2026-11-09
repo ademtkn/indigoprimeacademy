@@ -1,0 +1,47 @@
+{
+  "repo": "ademtkn/indigoprimeacademy",
+  "url": "https://ademtkn.github.io/indigoprimeacademy",
+  "customDomain": "",
+  "phones": [],
+  "whatsapp": "",
+  "instagram": "https://www.instagram.com/indigoprimeacademy/",
+  "dm": "https://ig.me/m/indigoprimeacademy",
+  "handle": "@indigoprimeacademy",
+  "map": "https://2gis.kg/bishkek?m=74.628493%2C42.843915%2F17",
+  "network": "https://indigo.edu.kg/",
+  "aiEndpoint": "",
+  "menu": [
+    {
+      "key": "about",
+      "show": true
+    },
+    {
+      "key": "academics",
+      "show": true
+    },
+    {
+      "key": "method",
+      "show": true
+    },
+    {
+      "key": "admissions",
+      "show": true
+    },
+    {
+      "key": "life",
+      "show": true
+    },
+    {
+      "key": "staff",
+      "show": true
+    },
+    {
+      "key": "news",
+      "show": true
+    },
+    {
+      "key": "contact",
+      "show": true
+    }
+  ]
+}

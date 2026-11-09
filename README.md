@@ -3,59 +3,60 @@
 Indigo Academy'ye bağlı Indigo Prime Academy (7–12. sınıflar, karma eğitim, Cambridge programı + Singapur metodu)
 için 3 dilli (İngilizce, Kırgızca, Rusça) statik site. Asylkech Girls' School sitesiyle aynı altyapıyı kullanır.
 
+## Yönetim paneli (admin)
+Adres: **https://ademtkn.github.io/indigoprimeacademy/admin/**
+
+Panelden kod bilmeden şunlar değiştirilebilir, her metin üç dilde (EN / KG / RU) yan yana:
+- **Sayfa metinleri:** tüm sayfalardaki başlıklar, yazılar, SSS, kulüpler, takvim… Listelere öğe eklenip silinebilir, sırası değiştirilebilir.
+- **Menü:** sayfaların sırası, menüdeki adı, menüde gösterilip gizlenmesi.
+- **Öğretmenler:** ad, görev, bölüm, fotoğraf; yeni öğretmen ekleme ve silme.
+- **Haberler:** fotoğraflı haber; son üç haber ana sayfada da görünür, her haberin kendi sayfası olur.
+- **Ek sayfalar:** menüye yeni sayfa (ör. Burslar).
+- **Resimler:** sayfalardaki fotoğraf alanları (yüklenen resim otomatik küçültülür).
+- **İletişim ve ayarlar:** telefon, WhatsApp, adres, saatler, Instagram, 2GIS bağlantısı.
+
+**Giriş:** Panel bir GitHub erişim anahtarıyla açılır (giriş ekranında adım adım anlatılıyor):
+GitHub → Settings → Developer settings → Fine-grained tokens → yalnızca `indigoprimeacademy` deposu,
+izinler **Contents: Read and write** ve **Actions: Read-only**. Her editöre ayrı anahtar verin; ayrılan kişinin anahtarını silin.
+
+**Nasıl çalışır:** “Kaydet ve yayınla” tüm değişiklikleri depoya tek bir commit olarak yazar. Ardından
+`.github/workflows/deploy.yml` (GitHub Actions) siteyi `node src/build.mjs` ile derleyip `gh-pages` dalına yayınlar.
+Bu süreç yaklaşık 1–2 dakika sürer; panelin üst çubuğu “✓ Yayınlandı” yazınca bitmiştir.
+
 ## Yapı
 ```
-src/build.mjs          Sayfa şablonları + okul bilgileri (telefon, WhatsApp, Instagram, harita, kadro listesi)
-src/content/en|ky|ru   Her dilin tüm metinleri
-assets/css, js, img    Tasarım, betikler, logo
-docs/                  Derlenmiş site (GitHub Pages bu klasörü yayınlar)
+content/site.json      İletişim bilgileri, menü sırası/görünürlüğü
+content/en|ky|ru.json  Her dilin tüm metinleri
+content/staff.json     Öğretmenler (ad ve görev 3 dilde, bölüm)
+content/news.json      Haberler        content/pages.json   Ek sayfalar
+content/images.json    Resimler bölümündeki fotoğraf alanlarının listesi
+admin/                 Yönetim paneli
+src/build.mjs          Sayfa şablonları (content/ dosyalarından siteyi üretir)
+assets/css, js, img    Tasarım, betikler, logo, yüklenen fotoğraflar
 server/                Yapay zeka asistanı için Cloudflare Worker (isteğe bağlı)
 ```
+Derleme: `node src/build.mjs` (Node 18+, bağımlılık yok) → `docs/` (depoya konmaz, Actions üretir).
 
-Derleme: `node src/build.mjs` (Node 18+, bağımlılık yok).
+Sayfalar (her dilde ayrı): `index`, `about`, `academics`, `method`, `admissions`, `school-life`, `staff`, `news`, `contact`,
+ayrıca her haber için `news-<id>.html` ve her ek sayfa için `page-<ad>.html`. Kök `index.html` dil seçim sayfasıdır.
 
-Sayfalar (her dilde ayrı): `index` (Ana sayfa), `about`, `academics` (Programlar: Lower Secondary / IGCSE / A Level),
-`method` (Cambridge & Singapur metodu), `admissions`, `school-life`, `staff` (Öğretmenler), `news`, `contact`.
-Adresleri: `/en/…`, `/ky/…`, `/ru/…`. Kök `index.html` dil seçim sayfasıdır.
+## Fotoğraf dosyaları
+Panel fotoğrafları şu adlarla kaydeder: `assets/img/photos/*.jpg` (sayfa fotoğrafları), `assets/img/staff/<id>.jpg`,
+`assets/img/news/<id>.jpg`, `assets/img/pages/<ad>.jpg`. Fotoğrafı olmayan alanlarda tasarımdaki renkli desen görünür.
 
-## Doldurulması gerekenler (yayından önce)
-`src/build.mjs` → `SITE`:
-- `phones`: okul telefonları. Boşken telefon satırları hiç gösterilmez.
-- `whatsapp`: WhatsApp numarası (`996…`). Boşken iletişim formu ve "WhatsApp" düğmeleri Instagram Direct'i açar
-  (mesaj panoya kopyalanır).
-- `map`: 2GIS bağlantısı (şu an verilen koordinat: 42.843915, 74.628493).
-
-Metinlerde (`src/content/*.mjs` → `common`):
-- `address` / `addressShort`: tam sokak adresi (şu an sadece "Bishkek, Kyrgyzstan").
-- `hoursVal`: çalışma saatleri (taslak: Pzt–Cum 08:00–17:00).
-
-Taslak olup okulla doğrulanması gerekenler: günlük program saatleri, kabul belgeleri, giriş sınavı (İngilizce + matematik),
-sunulan IGCSE / A Level dersleri, SSS cevapları, takvim.
-
-## Kadro (öğretmenler)
-`src/build.mjs` içindeki `STAFF` listesinde her kişinin `name` alanını doldurun:
-`name: 'Айгүл Асанова'` veya dile göre `name: { en: '…', ky: '…', ru: '…' }`.
-Görev adları `src/content/*.mjs` içinde `staff.roles` altındadır; kişi eklemek için `STAFF`'a satır, `roles`'a görev ekleyin.
-Portre: `assets/img/staff/<id>.jpg`.
-
-## Gerçek fotoğrafları eklemek
-Dosyayı aşağıdaki adla koyup tekrar derleyin; yer tutucu otomatik olarak fotoğrafla değişir.
-
-| Dosya | Nerede |
-|---|---|
-| `assets/img/photos/home-welcome.jpg` | Ana sayfa karşılama |
-| `assets/img/photos/stage-1.jpg`, `stage-2.jpg`, `stage-3.jpg` | Programlar (Lower Secondary, IGCSE, A Level) |
-| `assets/img/photos/life-1.jpg`, `life-2.jpg`, `life-3.jpg` | Okul hayatı kolajı |
-| `assets/img/photos/about-story.jpg`, `director.jpg`, `languages.jpg` | Hakkımızda / Programlar |
-| `assets/img/photos/news-instagram.jpg`, `news-network.jpg` | Haberler |
+## Yayından önce doğrulanacaklar
+Telefon/WhatsApp ve tam adres boş; çalışma saatleri, günlük program, giriş sınavı, belge listesi, IGCSE/A Level dersleri
+ve SSS cevapları taslaktır. Hepsi panelden düzeltilebilir.
 
 ## Yapay zeka asistanı
 Asylkech sitesindekiyle aynı: sağ alttaki asistan sitedeki metinlerden üretilen bilgi tabanıyla (`docs/assets/data/kb-*.json`)
 cevap verir. Gerçek yapay zeka için `server/` klasöründeki Worker'ı kurun (`npx wrangler secret put ANTHROPIC_API_KEY`,
-`npx wrangler deploy`), sonra `SITE.aiEndpoint` alanına adresini yazıp tekrar derleyin.
+`npx wrangler deploy`), sonra adresini panelde “İletişim ve ayarlar → Gelişmiş → Asistan sunucusu” alanına yazın.
 
 ## Yayın: GitHub Pages
-1. GitHub'da `indigoprimeacademy` adında yeni bir depo açın ve bu klasörü gönderin.
-2. **Settings → Pages → Deploy from a branch**, **Branch: `main`**, klasör **`/docs`** → **Save**.
-3. Adres: `https://ademtkn.github.io/indigoprimeacademy/` (farklı bir depo adı seçerseniz `SITE.url`'i güncelleyin).
-Alan adına geçerken `SITE.url` ve `SITE.customDomain` değerlerini değiştirip derleyin (derleme `docs/CNAME` yazar).
+Site `gh-pages` dalından yayınlanır (Settings → Pages → Deploy from a branch → `gh-pages` / `(root)`).
+`main` dalına yapılan her değişiklik (panelden ya da koddan) Actions ile otomatik yayınlanır; Actions sekmesinden
+“Build and publish site” → **Run workflow** ile elle de çalıştırılabilir.
+
+Alan adına geçerken panelde “İletişim ve ayarlar → Gelişmiş” bölümünden sitenin adresini ve özel alan adını girin
+(derleme `CNAME` dosyasını yazar), ardından alan adının DNS kayıtlarını GitHub Pages'e yönlendirin.

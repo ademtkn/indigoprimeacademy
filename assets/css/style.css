@@ -862,3 +862,21 @@ h3 { font-family: var(--f-display); font-weight: 800; letter-spacing: -.005em; }
 /* mid-size desktops: drop the wordmark beside the logo so the full menu fits */
 @media (min-width: 1361px) and (max-width: 1760px) { .hdr .brand-text { display: none; } .nav { gap: .9rem; } }
 .site-header .wrap { max-width: 1520px; }
+
+/* ---------- news (written in the admin panel) ---------- */
+.news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4rem; }
+.news-card { display: grid; grid-template-rows: auto 1fr; background: var(--surface); border-radius: var(--radius); overflow: hidden; color: inherit; text-decoration: none; box-shadow: var(--shadow); transition: transform .3s; min-width: 0; }
+.news-card:hover { transform: translateY(-4px); }
+.news-card:hover .link-ico { transform: translateX(4px); }
+.news-card .ph { border-radius: 0; aspect-ratio: 16 / 10; }
+.news-body { display: grid; gap: .5rem; padding: 1.3rem 1.4rem 1.5rem; align-content: start; }
+.news-body time { font: 800 .74rem/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--rose); }
+.news-body h3 { font-size: 1.3rem; line-height: 1.25; }
+.news-body p { color: var(--muted); font-size: .96rem; }
+.more-link { margin-top: 1.6rem; }
+.article { display: grid; gap: 1.1rem; }
+.article p { max-width: 44rem; }
+.article-lead { font-size: 1.2rem; font-weight: 600; color: var(--ink); }
+.article-ph { aspect-ratio: 16 / 9; }
+.article a:not(.link) { color: var(--sky-ink); }
+@media (max-width: 860px) { .news-grid { grid-template-columns: 1fr; max-width: 560px; } }

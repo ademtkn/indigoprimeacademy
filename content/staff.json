@@ -1,0 +1,310 @@
+[
+  {
+    "id": "director",
+    "dept": "lead",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Director",
+      "ky": "Директор",
+      "ru": "Директор"
+    }
+  },
+  {
+    "id": "deputyAcademic",
+    "dept": "lead",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Deputy Director, Academic Affairs",
+      "ky": "Директордун окуу иштери боюнча орун басары",
+      "ru": "Заместитель директора по учебной работе"
+    }
+  },
+  {
+    "id": "cambridgeCoord",
+    "dept": "lead",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Cambridge Programme Coordinator",
+      "ky": "Cambridge программасынын координатору",
+      "ru": "Координатор программы Cambridge"
+    }
+  },
+  {
+    "id": "pastoral",
+    "dept": "lead",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Deputy Director, Pupil Care",
+      "ky": "Директордун тарбия иштери боюнча орун басары",
+      "ru": "Заместитель директора по воспитательной работе"
+    }
+  },
+  {
+    "id": "math1",
+    "dept": "stem",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Mathematics",
+      "ky": "Математика",
+      "ru": "Математика"
+    }
+  },
+  {
+    "id": "math2",
+    "dept": "stem",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Mathematics",
+      "ky": "Математика",
+      "ru": "Математика"
+    }
+  },
+  {
+    "id": "physics",
+    "dept": "stem",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Physics",
+      "ky": "Физика",
+      "ru": "Физика"
+    }
+  },
+  {
+    "id": "chemistry",
+    "dept": "stem",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Chemistry",
+      "ky": "Химия",
+      "ru": "Химия"
+    }
+  },
+  {
+    "id": "biology",
+    "dept": "stem",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Biology",
+      "ky": "Биология",
+      "ru": "Биология"
+    }
+  },
+  {
+    "id": "cs",
+    "dept": "stem",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Computer science & robotics",
+      "ky": "Информатика жана робототехника",
+      "ru": "Информатика и робототехника"
+    }
+  },
+  {
+    "id": "english1",
+    "dept": "lang",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "English",
+      "ky": "Англис тили",
+      "ru": "Английский язык"
+    }
+  },
+  {
+    "id": "english2",
+    "dept": "lang",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "English",
+      "ky": "Англис тили",
+      "ru": "Английский язык"
+    }
+  },
+  {
+    "id": "kyrgyz",
+    "dept": "lang",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Kyrgyz language & literature",
+      "ky": "Кыргыз тили жана адабияты",
+      "ru": "Кыргызский язык и литература"
+    }
+  },
+  {
+    "id": "russian",
+    "dept": "lang",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Russian language & literature",
+      "ky": "Орус тили жана адабияты",
+      "ru": "Русский язык и литература"
+    }
+  },
+  {
+    "id": "history",
+    "dept": "hum",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "History & global perspectives",
+      "ky": "Тарых жана Global Perspectives",
+      "ru": "История и Global Perspectives"
+    }
+  },
+  {
+    "id": "geography",
+    "dept": "hum",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Geography",
+      "ky": "География",
+      "ru": "География"
+    }
+  },
+  {
+    "id": "business",
+    "dept": "hum",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Business & economics",
+      "ky": "Бизнес жана экономика",
+      "ru": "Бизнес и экономика"
+    }
+  },
+  {
+    "id": "art",
+    "dept": "hum",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Art & design",
+      "ky": "Искусство жана дизайн",
+      "ru": "Искусство и дизайн"
+    }
+  },
+  {
+    "id": "pe",
+    "dept": "hum",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Physical education",
+      "ky": "Дене тарбия",
+      "ru": "Физическая культура"
+    }
+  },
+  {
+    "id": "counsellor",
+    "dept": "support",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "University & career counsellor",
+      "ky": "Университетке тапшыруу жана кесип боюнча кеңешчи",
+      "ru": "Консультант по поступлению и профориентации"
+    }
+  },
+  {
+    "id": "psychologist",
+    "dept": "support",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "School psychologist",
+      "ky": "Мектеп психологу",
+      "ru": "Школьный психолог"
+    }
+  },
+  {
+    "id": "admissions",
+    "dept": "support",
+    "name": {
+      "en": "",
+      "ky": "",
+      "ru": ""
+    },
+    "role": {
+      "en": "Admissions officer",
+      "ky": "Кабыл алуу бөлүмүнүн адиси",
+      "ru": "Специалист приёмной комиссии"
+    }
+  }
+]
