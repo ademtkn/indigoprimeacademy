@@ -40,7 +40,7 @@
   };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 
-  var S = { token: '', head: '', files: {}, existing: {}, uploads: {}, view: 'home', textPage: 'home', publishing: null };
+  var S = { token: '', head: '', files: {}, existing: {}, built: {}, uploads: {}, view: 'home', textPage: 'home', publishing: null };
   var $ = function (id) { return document.getElementById(id); };
 
   // ---------- GitHub API ----------
@@ -72,11 +72,12 @@
     }).then(function (c) {
       return gh('GET', '/git/trees/' + c.tree.sha + '?recursive=1');
     }).then(function (tree) {
-      S.existing = {};
+      S.existing = {}; S.built = {};
       var blobs = {};
       tree.tree.forEach(function (e) {
         if (e.type !== 'blob') return;
         if (e.path.indexOf('assets/img/') === 0) S.existing[e.path] = true;
+        if (e.path.indexOf('docs/') === 0 || e.path === 'server/knowledge.json') S.built[e.path] = e.sha;
         blobs[e.path] = e.sha;
       });
       return Promise.all(FILES.map(function (f) {
@@ -103,18 +104,20 @@
   function save() {
     var d = dirty(); if (!d.files.length && !d.uploads.length) return;
     var btn = $('save'); btn.disabled = true; btn.textContent = 'Kaydediliyor…';
-    var base, entries = [];
+    var base, built, entries = [];
     d.files.forEach(function (f) { entries.push({ path: path(f), mode: '100644', type: 'blob', content: json(S.files[f].data) }); });
     gh('GET', '/git/ref/heads/' + BRANCH).then(function (ref) {
       base = ref.object.sha;
       if (base !== S.head && !confirm('Site siz bu sayfayı açtıktan sonra başka bir yerden değiştirilmiş. Kaydederseniz aynı bölümlerdeki o değişikliklerin üzerine yazılabilir. Devam edilsin mi?')) throw new Error('İptal edildi');
-      // Upload pictures as blobs first, then build one tree with every change
+      // Upload pictures as blobs first (into assets/ and the published copy in docs/assets/)
       return Promise.all(d.uploads.map(function (p) {
         var u = S.uploads[p];
-        if (u === null) { if (S.existing[p]) entries.push({ path: p, mode: '100644', type: 'blob', sha: null }); return null; }
-        return gh('POST', '/git/blobs', { content: u.b64, encoding: 'base64' }).then(function (b) { entries.push({ path: p, mode: '100644', type: 'blob', sha: b.sha }); });
+        if (u === null) { if (S.existing[p]) entries.push(gone(p), gone('docs/' + p)); return null; }
+        return gh('POST', '/git/blobs', { content: u.b64, encoding: 'base64' }).then(function (b) {
+          entries.push({ path: p, mode: '100644', type: 'blob', sha: b.sha }, { path: 'docs/' + p, mode: '100644', type: 'blob', sha: b.sha });
+        });
       }));
-    }).then(function () { return gh('GET', '/git/commits/' + base); })
+    }).then(rebuild).then(function (pages) { built = pages; entries = entries.concat(pages.entries); return gh('GET', '/git/commits/' + base); })
       .then(function (c) { return gh('POST', '/git/trees', { base_tree: c.tree.sha, tree: entries }); })
       .then(function (t) { return gh('POST', '/git/commits', { message: 'Yönetim panelinden güncelleme: ' + summary(d), tree: t.sha, parents: [base] }); })
       .then(function (c) { return gh('PATCH', '/git/refs/heads/' + BRANCH, { sha: c.sha }).then(function () { return c.sha; }); })
@@ -122,6 +125,7 @@
         S.head = sha;
         d.files.forEach(function (f) { S.files[f].text = json(S.files[f].data); });
         d.uploads.forEach(function (p) { if (S.uploads[p] === null) delete S.existing[p]; else S.existing[p] = true; });
+        Object.keys(built.shas).forEach(function (p) { if (built.shas[p]) S.built[p] = built.shas[p]; else delete S.built[p]; });
         S.uploads = {};
         toast('Kaydedildi. Site 1–2 dakika içinde güncellenecek.');
         watchPublish(sha);
@@ -132,6 +136,37 @@
       })
       .then(function () { btn.textContent = 'Kaydet ve yayınla'; updateBar(); });
   }
+  // ---------- rebuilding the published site (docs/) in the browser ----------
+  // GitHub Pages serves main /docs, so every save also commits the regenerated pages.
+  var gone = function (p) { return { path: p, mode: '100644', type: 'blob', sha: null }; };
+  function gitSha(text) {
+    var body = new TextEncoder().encode(text), head = new TextEncoder().encode('blob ' + body.length + '\0');
+    var all = new Uint8Array(head.length + body.length); all.set(head); all.set(body, head.length);
+    return crypto.subtle.digest('SHA-1', all).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+  function rebuild() {
+    return import('./lib/site.mjs?v=' + Date.now()).then(function (mod) {
+      var content = {};
+      ['site', 'en', 'ky', 'ru', 'staff', 'news', 'pages'].forEach(function (f) { content[f] = S.files[f].data; });
+      var exists = function (p) {
+        if (Object.prototype.hasOwnProperty.call(S.uploads, p)) return S.uploads[p] !== null;
+        return !!S.existing[p];
+      };
+      var out = mod.generate({ content: content, exists: exists });
+      var paths = Object.keys(out), shas = {}, entries = [];
+      return Promise.all(paths.map(function (p) { return gitSha(out[p]).then(function (h) { shas[p] = h; }); })).then(function () {
+        paths.forEach(function (p) { if (S.built[p] !== shas[p]) entries.push({ path: p, mode: '100644', type: 'blob', content: out[p] }); });
+        // Pages that no longer exist (deleted news or extra pages, a removed CNAME)
+        Object.keys(S.built).forEach(function (p) {
+          if (/^docs\/(en|ky|ru)\/[^/]+\.html$|^docs\/CNAME$/.test(p) && !Object.prototype.hasOwnProperty.call(out, p)) { entries.push(gone(p)); shas[p] = null; }
+        });
+        return { entries: entries, shas: shas };
+      });
+    });
+  }
+
   function summary(d) {
     var names = { site: 'ayarlar/menü', en: 'metinler', ky: 'metinler', ru: 'metinler', staff: 'öğretmenler', news: 'haberler', pages: 'sayfalar', images: 'resim listesi' };
     var out = [];

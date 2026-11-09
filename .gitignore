@@ -2,4 +2,3 @@ node_modules/
 server/node_modules/
 server/.wrangler/
 .DS_Store
-docs/
