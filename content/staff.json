@@ -3,9 +3,9 @@
     "id": "director",
     "dept": "lead",
     "name": {
-      "en": "",
-      "ky": "",
-      "ru": ""
+      "en": "Abdulmenaf Degerli",
+      "ky": "Абдулменаф Дегерли",
+      "ru": "Абдулменаф Дегерли"
     },
     "role": {
       "en": "Director",
@@ -17,9 +17,9 @@
     "id": "deputyAcademic",
     "dept": "lead",
     "name": {
-      "en": "",
-      "ky": "",
-      "ru": ""
+      "en": "Dovletgeldi Yegenmammedov",
+      "ky": "Довлетгельди Егенмаммедов",
+      "ru": "Довлетгельди Егенмаммедов"
     },
     "role": {
       "en": "Deputy Director, Academic Affairs",
@@ -31,14 +31,14 @@
     "id": "cambridgeCoord",
     "dept": "lead",
     "name": {
-      "en": "",
-      "ky": "",
-      "ru": ""
+      "en": "Gulshayir Samieva",
+      "ky": "Гүлшайыр Самиева",
+      "ru": "Гүлшайыр Самиева"
     },
     "role": {
-      "en": "Cambridge Programme Coordinator",
-      "ky": "Cambridge программасынын координатору",
-      "ru": "Координатор программы Cambridge"
+      "en": "Vice-principal & Kyrgyz language",
+      "ky": "Vice-principal & Kyrgyz language",
+      "ru": "Vice-principal & Kyrgyz language"
     }
   },
   {
