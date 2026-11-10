@@ -148,3 +148,12 @@ label { font-weight: 700; font-size: .85rem; }
 .lang-pick--dark { justify-self: start; border-color: rgba(255,255,255,.25); margin-bottom: .4rem; }
 .lang-pick--dark button { color: rgba(255,255,255,.75); }
 .lang-pick--dark button[aria-pressed="true"] { background: #fff; color: var(--primary-ink); }
+
+/* sign-in with username + password; editor accounts */
+.login-form { display: grid; gap: .55rem; }
+.login-form .btn { margin-top: .3rem; }
+.help .login-form { margin-top: .8rem; }
+.who { margin: -.4rem 1.2rem .6rem; font-size: .8rem; color: rgba(255,255,255,.65); }
+.ed-list { margin: .8rem 0 0; padding-left: 1.2rem; display: grid; gap: .3rem; }
+.note-card { background: #FFF8EC; border-color: #F6DDB0; }
+.note-card h2 { font-size: 1rem !important; }

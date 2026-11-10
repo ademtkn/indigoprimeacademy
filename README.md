@@ -18,9 +18,20 @@ Panelden kod bilmeden şunlar değiştirilebilir, her metin üç dilde (EN / KG 
 - **Resimler:** sayfalardaki fotoğraf alanları (yüklenen resim otomatik küçültülür).
 - **İletişim ve ayarlar:** telefon, WhatsApp, adres, saatler, Instagram, 2GIS bağlantısı.
 
-**Giriş:** Panel bir GitHub erişim anahtarıyla açılır (giriş ekranında adım adım anlatılıyor):
-GitHub → Settings → Developer settings → Fine-grained tokens → yalnızca `indigoprimeacademy` deposu,
-izinler **Contents: Read and write** ve **Actions: Read-only**. Her editöre ayrı anahtar verin; ayrılan kişinin anahtarını silin.
+**Giriş:** Editörler **kullanıcı adı + şifre** (4–6 harf veya rakam) ile girer.
+- İlk kurulum (bir kez): site sahibi giriş ekranındaki “Site sahibi: GitHub erişim anahtarıyla giriş” bölümünden bir GitHub
+  anahtarıyla girer (GitHub → Settings → Developer settings → Fine-grained tokens → yalnızca `indigoprimeacademy` deposu,
+  izinler **Contents: Read and write** ve **Actions: Read-only**), **Editörler** bölümünde kendi “Site sahibi” hesabını
+  oluşturur ve “Kaydet ve yayınla”ya basar.
+- Sonra **Editörler** bölümünden editör eklenir, silinir, şifresi değiştirilir. Editörler yalnızca kendi şifrelerini değiştirebilir.
+- Nasıl saklanır: `content/editors.json` (yayında `admin/editors.json`), sitenin GitHub anahtarını rastgele bir site anahtarıyla
+  şifreli tutar (AES-GCM); site anahtarı da her kullanıcı için o kişinin şifresinden türetilen anahtarla (PBKDF2-SHA256,
+  600.000 tur) şifrelenir. Şifreler hiçbir yerde açık yazılmaz.
+- **Güvenlik sınırı:** Sunucu olmadığı için bu dosya herkese açıktır ve deneme sınırı konamaz; 6 karakterlik şifre yeterli işlem
+  gücüyle kırılabilir. 6 karakterin hepsini kullanın, büyük/küçük harf ve rakam karıştırın. Bir editör ayrılırsa ve
+  güvenmiyorsanız: GitHub'da yeni anahtar oluşturup eskisini silin, yeni anahtarla girin ve Editörler → “Baştan başla”.
+- GitHub anahtarının süresi dolarsa site sahibi kullanıcı adı/şifresiyle girer; panel yeni anahtarı ister ve tüm hesaplar
+  çalışmaya devam eder.
 
 **Nasıl çalışır:** “Kaydet ve yayınla”ya basınca panel siteyi tarayıcıda yeniden üretir (`src/site.mjs`, Node'daki
 derlemeyle aynı kod) ve içerik dosyalarını, resimleri ve değişen `docs/` sayfalarını depoya tek bir commit olarak yazar.

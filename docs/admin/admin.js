@@ -9,8 +9,9 @@
   var BRANCH = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.branch) || 'main';
   var API = 'https://api.github.com/repos/' + REPO;
   var LANGS = [['en', 'EN'], ['ky', 'KG'], ['ru', 'RU']];
-  var FILES = ['site', 'en', 'ky', 'ru', 'staff', 'news', 'pages', 'images'];
-  var TOKEN_KEY = 'ipa-admin-token';
+  var FILES = ['site', 'en', 'ky', 'ru', 'staff', 'news', 'pages', 'images', 'editors'];
+  var TOKEN_KEY = 'ipa-admin-token'; // older sessions: a bare GitHub token
+  var SESSION_KEY = 'ipa-admin-session';
   var ICONS = 'book globe heart shield spark palette music flask code trophy run chat sun calendar phone pin clock users doc star leaf needle mic cambridge bars cubes target compass grad pair lab map'.split(' ');
   var HIDDEN = { code: 1, htmlLang: 1, label: 1, langName: 1, ogLocale: 1 };
   var I18N = window.ADMIN_I18N, UI_KEY = 'ipa-admin-lang';
@@ -32,7 +33,7 @@
   var TEXT_PAGES = Object.keys(I18N.en.pagesTabs);
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 
-  var S = { token: '', head: '', files: {}, existing: {}, built: {}, uploads: {}, view: 'home', textPage: 'home', publishing: null };
+  var S = { token: '', key: null, user: null, head: '', files: {}, existing: {}, built: {}, uploads: {}, view: 'home', textPage: 'home', publishing: null };
   var $ = function (id) { return document.getElementById(id); };
 
   // ---------- GitHub API ----------
@@ -73,7 +74,7 @@
         blobs[e.path] = e.sha;
       });
       return Promise.all(FILES.map(function (f) {
-        if (!blobs[path(f)]) return Promise.resolve([f, f === 'site' || /^(en|ky|ru)$/.test(f) ? null : '[]\n']);
+        if (!blobs[path(f)]) return Promise.resolve([f, f === 'site' || /^(en|ky|ru)$/.test(f) ? null : f === 'editors' ? '{"vault":null,"users":[]}' : '[]\n']);
         return gh('GET', '/git/blobs/' + blobs[path(f)]).then(function (b) { return [f, b64ToText(b.content)]; });
       }));
     }).then(function (list) {
@@ -141,7 +142,7 @@
   function rebuild() {
     return import('./lib/site.mjs?v=' + Date.now()).then(function (mod) {
       var content = {};
-      ['site', 'en', 'ky', 'ru', 'staff', 'news', 'pages'].forEach(function (f) { content[f] = S.files[f].data; });
+      ['site', 'en', 'ky', 'ru', 'staff', 'news', 'pages', 'editors'].forEach(function (f) { content[f] = S.files[f].data; });
       var exists = function (p) {
         if (Object.prototype.hasOwnProperty.call(S.uploads, p)) return S.uploads[p] !== null;
         return !!S.existing[p];
@@ -161,7 +162,7 @@
 
   function summary(d, lang) {
     var ui = UI; if (lang) UI = lang;
-    var key = { site: 'sum.site', en: 'sum.texts', ky: 'sum.texts', ru: 'sum.texts', staff: 'sum.staff', news: 'sum.news', pages: 'sum.pages', images: 'sum.images' };
+    var key = { site: 'sum.site', en: 'sum.texts', ky: 'sum.texts', ru: 'sum.texts', staff: 'sum.staff', news: 'sum.news', pages: 'sum.pages', images: 'sum.images', editors: 'sum.editors' };
     var out = [];
     d.files.forEach(function (f) { var n = T(key[f]); if (out.indexOf(n) < 0) out.push(n); });
     if (d.uploads.length) out.push(T('sum.pics', d.uploads.length));
@@ -360,7 +361,7 @@
   }
 
   // ---------- views ----------
-  var VIEWS = ['home', 'texts', 'menu', 'staff', 'news', 'pages', 'images', 'settings'];
+  var VIEWS = ['home', 'texts', 'menu', 'staff', 'news', 'pages', 'images', 'settings', 'editors'];
   function nav() {
     var n = $('side-nav'); n.innerHTML = '';
     VIEWS.forEach(function (v) {
@@ -371,6 +372,7 @@
 
   function render() {
     nav(); updateBar();
+    $('who').textContent = S.user ? (S.user.name || S.user.u) + ' · ' + T(S.user.role === 'owner' ? 'ed.owner' : 'ed.editor') : T('ed.tokenUser');
     var view = $('view'); view.innerHTML = '';
     view.appendChild(R[S.view]());
   }
@@ -547,29 +549,208 @@
             single(T('set.domain'), function () { return site.customDomain; }, function (v) { site.customDomain = v.trim(); }, { hint: T('set.domainHint') }),
             single(T('set.ai'), function () { return site.aiEndpoint; }, function (v) { site.aiEndpoint = v.trim(); }, { hint: T('set.aiHint') }))));
     },
+
+    editors: function () {
+      var db = S.files.editors.data;
+      if (!db.users) db.users = [];
+      var me = S.user, owner = !me || me.role === 'owner'; // a GitHub-token sign-in is the site owner
+      var busy = function (btn, job) {
+        btn.disabled = true; var t = btn.textContent; btn.textContent = T('ed.working');
+        job().then(function () { updateBar(); rerender(); }, function (err) { btn.disabled = false; btn.textContent = t; if (err && err.message) alert(err.message); });
+      };
+      var pwInput = function () { return h('input', { type: 'password', maxlength: 6, autocomplete: 'new-password', placeholder: '••••••', pattern: '[A-Za-z0-9]{4,6}' }); };
+      var check = function (u, pw, isNew) {
+        if (isNew && !USER_RE.test(u)) return T('ed.badUser');
+        if (isNew && db.users.some(function (x) { return x.u === u; })) return T('ed.exists');
+        if (!PW_RE.test(pw)) return T('ed.badPw');
+        return '';
+      };
+      var roleSel = function (val) { return h('select', null, ['editor', 'owner'].map(function (r) { return h('option', { value: r, selected: r === val }, T('ed.' + r)); })); };
+      var card = [];
+
+      // First account, or a fresh start: new site key K + the current GitHub token in the vault
+      var createFirst = function (title, lead, resetting) {
+        var u = h('input', { autocomplete: 'off', placeholder: 'admin' }), n = h('input'), pw = pwInput();
+        var btn = h('button', { type: 'button', class: 'btn ' + (resetting ? 'btn--danger' : 'btn--primary') }, resetting ? T('ed.resetBtn') : T('ed.createFirst'));
+        btn.onclick = function () {
+          var uu = u.value.trim().toLowerCase(), err = USER_RE.test(uu) ? (PW_RE.test(pw.value) ? '' : T('ed.badPw')) : T('ed.badUser');
+          if (err) { alert(err); return; }
+          if (resetting && !confirm(T('ed.resetConfirm'))) return;
+          busy(btn, function () {
+            var k = rand(32);
+            return Promise.all([sealVault(k, S.token), makeUser(k, uu, n.value.trim(), 'owner', pw.value)]).then(function (r) {
+              db.vault = r[0]; db.users = [r[1]];
+              S.key = k; S.user = { u: uu, role: 'owner', name: n.value.trim() };
+              remember(remembered()); toast(T('ed.saveHint'));
+            });
+          });
+        };
+        return h('div', { class: 'card' }, h('h2', null, title), h('p', { class: 'muted', style: 'margin:0 0 1rem' }, lead),
+          h('div', { class: 'grid2' },
+            h('div', { class: 'field' }, h('label', null, T('ed.username'), h('span', { class: 'hint' }, T('ed.userRule'))), u),
+            h('div', { class: 'field' }, h('label', null, T('ed.name')), n),
+            h('div', { class: 'field' }, h('label', null, T('ed.password'), h('span', { class: 'hint' }, T('ed.pwRule'))), pw)),
+          btn);
+      };
+
+      if (!db.users.length || !db.vault) {
+        card.push(createFirst(T('ed.firstTitle'), T('ed.firstLead'), false));
+      } else if (!S.key) {
+        // Signed in with a raw GitHub token: the site key is unknown, so accounts can only be recreated
+        card.push(h('div', { class: 'card' }, h('p', { style: 'margin:0' }, T('ed.tokenOnly')),
+          h('ul', { class: 'ed-list' }, db.users.map(function (x) { return h('li', null, h('strong', null, x.u), ' ', x.name ? '(' + x.name + ')' : '', ' · ', T('ed.' + x.role)); }))));
+        card.push(createFirst(T('ed.resetTitle'), T('ed.resetLead'), true));
+      } else {
+        var rows = db.users.map(function (x, i) {
+          var self = me && me.u === x.u;
+          if (!owner && !self) return null;
+          var pw = pwInput(), setBtn = h('button', { type: 'button', class: 'btn btn--ghost btn--sm' }, T('ed.setPw'));
+          setBtn.onclick = function () {
+            var err = check(x.u, pw.value, false); if (err) { alert(err); return; }
+            busy(setBtn, function () { return makeUser(S.key, x.u, x.name, x.role, pw.value).then(function (nu) { db.users[i] = nu; toast(T('ed.saveHint')); }); });
+          };
+          var name = h('input'); name.value = x.name || ''; name.oninput = function () { x.name = name.value; updateBar(); };
+          var role = roleSel(x.role);
+          role.disabled = !owner || self;
+          role.onchange = function () { x.role = role.value; updateBar(); };
+          var del = owner && !self ? h('button', { type: 'button', class: 'btn btn--danger btn--sm', onclick: function () {
+            if (!confirm(T('ed.delConfirm', x.u))) return;
+            db.users.splice(i, 1); updateBar(); rerender();
+          } }, T('del')) : null;
+          return h('div', { class: 'item' },
+            h('div', { class: 'item-head' }, h('span', { class: 'num' }, String(i + 1)), h('span', { class: 'ttl' }, x.u + (self ? ' ' + T('ed.me') : '')), del),
+            h('div', { class: 'grid2' },
+              h('div', { class: 'field' }, h('label', null, T('ed.name')), name),
+              h('div', { class: 'field' }, h('label', null, T('ed.role')), role),
+              h('div', { class: 'field' }, h('label', null, T('ed.newPw'), h('span', { class: 'hint' }, T('ed.pwRule'))), h('div', { class: 'row', style: 'flex-wrap:nowrap' }, pw, setBtn))));
+        });
+        card.push(h('div', null, rows));
+        if (owner) {
+          var u = h('input', { autocomplete: 'off' }), n = h('input'), pw = pwInput(), role = roleSel('editor');
+          var add = h('button', { type: 'button', class: 'btn btn--primary' }, T('ed.add'));
+          add.onclick = function () {
+            var uu = u.value.trim().toLowerCase(), err = check(uu, pw.value, true); if (err) { alert(err); return; }
+            busy(add, function () { return makeUser(S.key, uu, n.value.trim(), role.value, pw.value).then(function (nu) { db.users.push(nu); toast(T('ed.saveHint')); }); });
+          };
+          card.push(h('div', { class: 'card' }, h('h2', null, T('ed.addTitle')),
+            h('div', { class: 'grid2' },
+              h('div', { class: 'field' }, h('label', null, T('ed.username'), h('span', { class: 'hint' }, T('ed.userRule'))), u),
+              h('div', { class: 'field' }, h('label', null, T('ed.name')), n),
+              h('div', { class: 'field' }, h('label', null, T('ed.password'), h('span', { class: 'hint' }, T('ed.pwRule'))), pw),
+              h('div', { class: 'field' }, h('label', null, T('ed.role')), role)),
+            add));
+          card.push(createFirst(T('ed.resetTitle'), T('ed.resetLead'), true));
+        }
+      }
+      return h('div', null, h('h1', null, T('v.editors')),
+        h('p', { class: 'lead' }, owner ? T('ed.lead') : T('ed.leadEditor')),
+        card,
+        h('div', { class: 'card note-card' }, h('h2', null, T('ed.secTitle')), h('p', { style: 'margin:0' }, T('ed.sec'))));
+    },
   };
 
-  // ---------- start ----------
+  // ---------- sign-in ----------
+  // Editors sign in with a username and a password of up to 6 letters/digits. content/editors.json
+  // (published as admin/editors.json) holds:
+  //   vault: the site's GitHub token, encrypted (AES-GCM) with a random site key K
+  //   users: [{ u, name, role, salt, iter, iv, wk }] — K encrypted with a key derived from each password (PBKDF2)
+  // The file is public, so the slow key derivation is what protects the short passwords.
+  var ITER = 600000;
+  var PW_RE = /^[A-Za-z0-9]{4,6}$/, USER_RE = /^[a-z0-9._-]{3,20}$/;
+  var te = new TextEncoder();
+  function b64(buf) { var s = '', a = new Uint8Array(buf); for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); }
+  function unb64(str) { var bin = atob(str), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+  var rand = function (n) { return crypto.getRandomValues(new Uint8Array(n)); };
+  function pwKey(pw, salt, iter) {
+    return crypto.subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveKey']).then(function (base) {
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    });
+  }
+  var aesKey = function (raw) { return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']); };
+  function seal(key, bytes) { var iv = rand(12); return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, bytes).then(function (ct) { return { iv: b64(iv), ct: b64(ct) }; }); }
+  function unseal(key, box) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.iv) }, key, unb64(box.ct)); }
+  // Encrypt the site key K for one account
+  function makeUser(k, u, name, role, pw) {
+    var salt = rand(16);
+    return pwKey(pw, salt, ITER).then(function (key) { return seal(key, k); }).then(function (box) {
+      return { u: u, name: name || '', role: role, salt: b64(salt), iter: ITER, iv: box.iv, wk: box.ct };
+    });
+  }
+  function sealVault(k, token) { return aesKey(k).then(function (key) { return seal(key, te.encode(token)); }); }
+  // Username + password → { token, key }
+  function unlock(db, u, pw) {
+    var user = (db.users || []).filter(function (x) { return x.u === u; })[0];
+    if (!user || !db.vault) return Promise.reject(new Error('bad'));
+    var k;
+    return pwKey(pw, unb64(user.salt), user.iter || ITER)
+      .then(function (key) { return unseal(key, { iv: user.iv, ct: user.wk }); })
+      .then(function (raw) { k = new Uint8Array(raw); return aesKey(k); })
+      .then(function (key) { return unseal(key, db.vault); })
+      .then(function (tok) { return { token: new TextDecoder().decode(tok), key: k, user: { u: user.u, role: user.role, name: user.name } }; })
+      .catch(function () { throw new Error('bad'); });
+  }
+  function fetchEditors() {
+    var get = function (url) { return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); };
+    // The published copy, then the repository itself (newer for a minute or two after a change)
+    return get('editors.json?v=' + Date.now()).catch(function () { return { users: [] }; }).then(function (pub) {
+      return get('https://raw.githubusercontent.com/' + REPO + '/' + BRANCH + '/content/editors.json?v=' + Date.now())
+        .then(function (raw) { return raw.users && raw.users.length >= (pub.users || []).length ? raw : pub; })
+        .catch(function () { return pub; });
+    });
+  }
+  function remember(on) {
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+      if (on) localStorage.setItem(SESSION_KEY, JSON.stringify({ token: S.token, key: S.key ? b64(S.key) : null, user: S.user }));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch (x) {}
+  }
+  function remembered() { try { return !!(localStorage.getItem(SESSION_KEY) || localStorage.getItem(TOKEN_KEY)); } catch (x) { return false; } }
+  function loginError(msg) { $('loading').hidden = true; $('app').hidden = true; $('login').hidden = false; var err = $('login-error'); err.hidden = false; err.textContent = msg; }
+
   function start() {
     $('loading').hidden = false;
     load().then(function () {
       $('login').hidden = true; $('app').hidden = false; $('loading').hidden = true; render();
     }).catch(function (e) {
-      $('loading').hidden = true; $('app').hidden = true; $('login').hidden = false;
-      var err = $('login-error'); err.hidden = false;
-      err.textContent = e.status === 401 ? T('err401') : e.status === 404 || e.status === 403 ? T('errNoAccess') : T('errLoad', e.message);
-      try { localStorage.removeItem(TOKEN_KEY); } catch (x) {}
+      if (e.status === 401 && S.user && S.user.role === 'owner' && S.key) {
+        // The stored GitHub token expired: the owner pastes a new one and every account keeps working
+        var fresh = prompt(T('ed.newToken'), '');
+        if (fresh && fresh.trim()) {
+          var old = S.token; S.token = fresh.trim();
+          return load().then(function () {
+            return sealVault(S.key, S.token).then(function (v) {
+              S.files.editors.data.vault = v;
+              $('login').hidden = true; $('app').hidden = false; $('loading').hidden = true;
+              S.view = 'editors'; render(); toast(T('ed.tokenUpdated'));
+            });
+          }).catch(function () { S.token = old; remember(false); loginError(T('err401')); });
+        }
+      }
+      remember(false);
+      loginError(e.status === 401 ? (S.user ? T('ed.expired') : T('err401')) : e.status === 404 || e.status === 403 ? T('errNoAccess') : T('errLoad', e.message));
     });
   }
   $('login-form').addEventListener('submit', function (e) {
     e.preventDefault();
+    var u = $('user').value.trim().toLowerCase(), pw = $('pass').value;
+    if (!u || !pw) return;
+    $('login-error').hidden = true; $('loading').hidden = false;
+    fetchEditors().then(function (db) { return unlock(db, u, pw); }).then(function (r) {
+      S.token = r.token; S.key = r.key; S.user = r.user;
+      remember($('remember').checked); $('pass').value = ''; start();
+    }).catch(function () { setTimeout(function () { loginError(T('login.bad')); }, 600); });
+  });
+  $('token-form').addEventListener('submit', function (e) {
+    e.preventDefault();
     S.token = $('token').value.trim(); if (!S.token) return;
-    try { if ($('remember').checked) localStorage.setItem(TOKEN_KEY, S.token); else localStorage.removeItem(TOKEN_KEY); } catch (x) {}
+    S.key = null; S.user = null;
+    remember($('remember').checked);
     $('login-error').hidden = true; start();
   });
   $('logout').addEventListener('click', function () {
     if (dirty().files.length + dirty().uploads.length && !confirm(T('confirm.logout'))) return;
-    try { localStorage.removeItem(TOKEN_KEY); } catch (x) {}
+    remember(false);
     location.reload();
   });
   $('save').addEventListener('click', save);
@@ -606,6 +787,10 @@
   }
   applyStatic();
 
-  try { S.token = localStorage.getItem(TOKEN_KEY) || ''; } catch (x) {}
+  try {
+    var saved = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (saved && saved.token) { S.token = saved.token; S.key = saved.key ? unb64(saved.key) : null; S.user = saved.user || null; }
+    else S.token = localStorage.getItem(TOKEN_KEY) || '';
+  } catch (x) {}
   if (S.token) start(); else { $('loading').hidden = true; $('login').hidden = false; }
 })();

@@ -8,8 +8,12 @@ import { generate } from './site.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'docs');
-const content = Object.fromEntries(['site', 'en', 'ky', 'ru', 'staff', 'news', 'pages']
-  .map((f) => [f, JSON.parse(fs.readFileSync(path.join(ROOT, 'content', `${f}.json`), 'utf8'))]));
+const readJson = (f, fallback) => {
+  const p = path.join(ROOT, 'content', `${f}.json`);
+  return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : fallback;
+};
+const content = Object.fromEntries(['site', 'en', 'ky', 'ru', 'staff', 'news', 'pages'].map((f) => [f, readJson(f)]));
+content.editors = readJson('editors', { vault: null, users: [] }); // written by the admin panel
 const out = generate({ content, exists: (p) => fs.existsSync(path.join(ROOT, p)) });
 
 fs.rmSync(DIST, { recursive: true, force: true });

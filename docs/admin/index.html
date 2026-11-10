@@ -11,18 +11,28 @@
 </head>
 <body>
 <div id="login" class="login" hidden>
-  <form class="login-card" id="login-form">
+  <div class="login-card">
     <div class="lang-pick" data-lang-pick></div>
     <img src="../assets/img/logo-240.png" alt="Indigo Prime Academy" width="160">
     <h1 data-i18n="login.title"></h1>
     <p class="muted" data-i18n="login.intro"></p>
-    <label for="token" data-i18n="login.token"></label>
-    <input id="token" type="password" autocomplete="current-password" placeholder="github_pat_…" required>
-    <label class="check"><input type="checkbox" id="remember" checked> <span data-i18n="login.remember"></span></label>
-    <button class="btn btn--primary" type="submit" data-i18n="login.submit"></button>
+    <form class="login-form" id="login-form">
+      <label for="user" data-i18n="login.user"></label>
+      <input id="user" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" required>
+      <label for="pass" data-i18n="login.pass"></label>
+      <input id="pass" type="password" autocomplete="current-password" maxlength="6" required>
+      <label class="check"><input type="checkbox" id="remember" checked> <span data-i18n="login.remember"></span></label>
+      <button class="btn btn--primary" type="submit" data-i18n="login.submit"></button>
+    </form>
     <p class="error" id="login-error" hidden></p>
     <details class="help">
-      <summary data-i18n="login.help"></summary>
+      <summary data-i18n="login.owner"></summary>
+      <form class="login-form" id="token-form">
+        <label for="token" data-i18n="login.token"></label>
+        <input id="token" type="password" autocomplete="off" placeholder="github_pat_…" required>
+        <button class="btn btn--ghost" type="submit" data-i18n="login.tokenSubmit"></button>
+      </form>
+      <p style="margin:.8rem 0 .2rem;font-weight:700" data-i18n="login.help"></p>
       <ol>
         <li data-i18n-html="login.h1"></li>
         <li data-i18n-html="login.h2"></li>
@@ -33,12 +43,13 @@
       </ol>
       <p class="muted" data-i18n="login.hnote"></p>
     </details>
-  </form>
+  </div>
 </div>
 
 <div id="app" class="app" hidden>
   <aside class="side">
     <div class="side-brand"><img src="../assets/img/logo-240.png" alt="" width="64"><span data-i18n-html="side.title"></span></div>
+    <p class="who" id="who"></p>
     <nav class="side-nav" id="side-nav"></nav>
     <div class="side-foot">
       <div class="lang-pick lang-pick--dark" data-lang-pick></div>

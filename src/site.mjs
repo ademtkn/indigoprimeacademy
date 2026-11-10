@@ -940,6 +940,8 @@ ${LANGS.flatMap((l) => PAGES.map((p) => p.file).concat(NEWS.map(newsFile)).map((
 `;
 if (SITE.customDomain) out['docs/CNAME'] = SITE.customDomain + '\n'; // GitHub Pages custom domain
 out['docs/robots.txt'] = `User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: ${SITE.url}/sitemap.xml\n`;
+// Editor accounts for the admin sign-in (each entry holds the site key encrypted with that editor's password)
+out['docs/admin/editors.json'] = JSON.stringify(content.editors || { vault: null, users: [] });
 out['docs/admin/config.js'] = `window.ADMIN_CONFIG = ${JSON.stringify({ repo: SITE.repo, branch: 'main' })};\n`;
 Object.defineProperty(out, 'count', { value: count });
 return out;
